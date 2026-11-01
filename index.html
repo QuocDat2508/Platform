@@ -804,22 +804,6 @@
             <path d="M0 493q68-20 136 0t136 0q68-20 136 0t136 0q68-20 136 0t136 0q68-20 136 0t148 0v69H0z" fill="#a85d32" opacity=".92"/>
             <path d="M0 486q68-20 136 0t136 0q68-20 136 0t136 0q68-20 136 0t136 0q68-20 136 0t148 0v18H0z" fill="#52cb43"/>
             <path d="M0 506h1000v56H0z" fill="url(#spots)" opacity=".8"/>
-            <!-- Little mushroom enemy -->
-            <g transform="translate(431 445)">
-              <ellipse cx="34" cy="44" rx="38" ry="9" fill="#492719" opacity=".25"/>
-              <path d="M10 28q0-28 25-28t25 28z" fill="#9b4a24" stroke="#6b311d" stroke-width="4"/>
-              <path d="M15 27q20 9 41 0v24q-20 19-41 0z" fill="#c98247" stroke="#6b311d" stroke-width="4"/>
-              <ellipse cx="27" cy="34" rx="4" ry="7" fill="#fff"/><ellipse cx="44" cy="34" rx="4" ry="7" fill="#fff"/>
-              <circle cx="28" cy="35" r="2.5" fill="#281927"/><circle cx="44" cy="35" r="2.5" fill="#281927"/>
-            </g>
-            <!-- Flying bee -->
-            <g transform="translate(876 320)">
-              <ellipse cx="0" cy="0" rx="26" ry="16" fill="#ffbf36" stroke="#a45b16" stroke-width="4"/>
-              <path d="M-8-14v28M8-14v28" stroke="#4b3923" stroke-width="7"/>
-              <path d="M-9-13q-19-28-29-12 2 19 25 20M9-13q19-28 29-12-2 19-25 20" fill="#e8fbff" fill-opacity=".72"/>
-              <path d="m25-3 16-10-5 20z" fill="#5b452d"/>
-              <circle cx="-4" cy="-3" r="3" fill="#27304c"/>
-            </g>
             <!-- Goal flag -->
             <path d="M695 266v81" stroke="#fff" stroke-width="6"/>
             <path d="M700 269q32-20 55 0l-8 24q-21-17-47-1z" fill="#ff4c61" stroke="#be2d50" stroke-width="3"/>
@@ -831,13 +815,8 @@
           </svg>
           <canvas class="game-canvas" width="1000" height="562" aria-label="Game Whisker Meadows"></canvas>
 
-          <!-- OVERLAY HUD (TOP LEFT: COMBO & OBJECTIVE) -->
+          <!-- OVERLAY HUD (TOP LEFT: OBJECTIVE) -->
           <div class="absolute top-4 left-4 flex flex-col gap-2 z-10 pointer-events-auto stage-top-left">
-            <div class="backdrop-blur-md bg-black/45 border border-white/25 text-white px-3.5 py-1.5 rounded-full flex items-center gap-2 shadow-lg">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-              <span class="text-xs font-bold uppercase tracking-wider">TỐC ĐỘ BẬT NHẢY:</span>
-              <span id="combo-value" class="text-xs font-extrabold text-amber-300">Sẵn sàng!</span>
-            </div>
             <div class="backdrop-blur-md bg-white/20 border border-white/30 text-white px-3.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 shadow">
               <i class="ph-fill ph-medal text-amber-300"></i>
               <span id="mission-value">Di chuyển sang phải, vượt chướng ngại vật và chạm cờ đích!</span>
@@ -896,8 +875,6 @@
             <!-- Stage Progress Mini Counter -->
             <div class="backdrop-blur-md bg-black/45 border border-white/20 rounded-2xl px-4 py-2 flex items-center gap-4 text-xs font-bold text-white pointer-events-auto shadow-lg">
               <span class="flex items-center gap-1.5"><i class="ph-fill ph-trophy text-amber-400"></i> Ngọc ẩn: <span id="gems-collected">0/3</span></span>
-              <span class="w-px h-3 bg-white/30"></span>
-              <span class="flex items-center gap-1.5"><i class="ph-fill ph-bug text-emerald-400"></i> Hạ nấm: <span id="enemies-defeated">0/12</span></span>
             </div>
           </div>
         </div>
@@ -937,7 +914,7 @@
             <div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-xl flex flex-col gap-1 items-center text-center">
               <kbd class="px-2 py-0.5 bg-white border border-slate-300 rounded shadow-sm font-mono font-bold text-slate-800">Shift</kbd>
               <span class="font-bold text-slate-800 mt-1">Lướt Gió (Dash)</span>
-              <span class="text-[10px] text-slate-400">Né bẫy đinh &amp; quái</span>
+              <span class="text-[10px] text-slate-400">Né bẫy đinh và hố sâu</span>
             </div>
 
             <!-- Attack -->
@@ -947,7 +924,7 @@
                 <kbd class="px-2 py-0.5 bg-white border border-slate-300 rounded shadow-sm font-mono font-bold text-slate-800">Z</kbd>
               </div>
               <span class="font-bold text-slate-800 mt-1">Cào Móng Vuốt</span>
-              <span class="text-[10px] text-slate-400">Tấn công quái vật Goomba</span>
+              <span class="text-[10px] text-slate-400">Vung móng vuốt</span>
             </div>
 
             <!-- Powerup -->
@@ -1003,8 +980,8 @@
             <div class="bg-pink-50/70 border border-pink-200/70 rounded-2xl p-3 flex items-start gap-2.5">
               <span class="w-6 h-6 rounded-lg bg-pink-500 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">💎</span>
               <div>
-                <p class="font-bold text-slate-900">Ong mật tuần tra</p>
-                <p class="text-[11px] text-slate-500">Lướt qua hoặc cào để tự vệ</p>
+                <p class="font-bold text-slate-900">Ngọc quý ẩn</p>
+                <p class="text-[11px] text-slate-500">Tìm và thu thập 3 viên ngọc</p>
               </div>
             </div>
 
@@ -1012,7 +989,7 @@
             <div class="bg-amber-50/70 border border-amber-200/70 rounded-2xl p-3 flex items-start gap-2 text-amber-900">
               <i class="ph-fill ph-lightbulb text-amber-600 text-base shrink-0 mt-0.5"></i>
               <div class="text-[11px] leading-relaxed">
-                <span class="font-bold">Mẹo thám hiểm:</span> Đạp lên đầu nấm để hạ quái; canh nhịp nhảy qua gai và những hố sâu nhé!
+                <span class="font-bold">Mẹo thám hiểm:</span> Thu thập xu và ngọc; canh nhịp nhảy qua gai và những hố sâu nhé!
               </div>
             </div>
           </div>
@@ -1107,13 +1084,11 @@
       coins: document.querySelector("#coins-value"),
       gems: document.querySelector("#gems-value"),
       gemsCollected: document.querySelector("#gems-collected"),
-      defeated: document.querySelector("#enemies-defeated"),
       timer: document.querySelector("#timer-value"),
       energy: document.querySelector("#energy-value"),
       energyBar: document.querySelector("#energy-bar"),
       progress: document.querySelector("#progress-value"),
       progressBar: document.querySelector("#progress-bar"),
-      combo: document.querySelector("#combo-value"),
       mission: document.querySelector("#mission-value"),
       overlayTitle: document.querySelector("#overlay-title"),
       overlayMessage: document.querySelector("#overlay-message"),
@@ -1151,10 +1126,6 @@
         .sort((first, second) => first.y - second.y)[0];
       return { x, y: platform ? platform.y : groundY };
     });
-    const enemyStarts = [
-      580, 970, 1300, 1770, 2050, 2260, 2600, 2920, 3050, 3440, 3800,
-      3920, 4280, 4610, 4750, 5090, 5490, 5650, 5960, 6240
-    ];
     const coinPositions = [];
     for (let group = 0; group < 16; group++) {
       const start = 280 + group * 390;
@@ -1169,20 +1140,6 @@
       { x: 3190, y: 335, collected: false },
       { x: 5230, y: 285, collected: false }
     ];
-    const enemySeeds = enemyStarts.map((x, index) => {
-      const enemyPlatform = platforms
-        .filter((platform) => x >= platform.x && x <= platform.end)
-        .sort((first, second) => first.y - second.y)[0];
-      return {
-        x,
-        homeX: x,
-        y: (enemyPlatform ? enemyPlatform.y : groundY) - 38,
-        speed: index % 2 ? 48 : 64,
-        direction: index % 2 ? -1 : 1,
-        range: 75 + (index % 3) * 20,
-        alive: true
-      };
-    });
     const input = { left: false, right: false };
     let gameState;
     let lastFrame = 0;
@@ -1196,13 +1153,12 @@
           dashTime: 0, attackTime: 0, shieldTime: 0, magnetTime: 0,
           dashCooldown: 0, attackCooldown: 0
         },
-        enemies: enemySeeds.map((enemy) => ({ ...enemy })),
         coins: coinPositions.map((coin) => ({ ...coin })),
         gems: gemPositions.map((gem) => ({ ...gem })),
         cameraX: 0, score: 0, lives: 3, collectedCoins: 0, collectedGems: 0,
-        defeated: 0, energy: 100, seconds: 300, elapsed: 0,
+        energy: 100, seconds: 300, elapsed: 0,
         checkpoint: { x: 200, platform: platforms[0] },
-        combo: 0, comboTimer: 0, hitFlash: 0, paused: false, ended: false,
+        hitFlash: 0, paused: false, ended: false,
         won: false, messageTimer: 0
       };
     }
@@ -1279,12 +1235,7 @@
         spike.y === platform.y && x + player.width > spike.x - 5 && x < spike.x + 45
       );
       if (collidesWithSpike) return false;
-      const center = x + player.width / 2;
-      const enemyNearby = gameState.enemies.some((enemy) =>
-        enemy.alive && Math.abs(enemy.x - center) < player.width + 28 &&
-        Math.abs(enemy.y + 20 - (platform.y - 20)) < 45
-      );
-      return !enemyNearby;
+      return true;
     }
 
     function saveCheckpoint(platform) {
@@ -1341,12 +1292,10 @@
       ui.coins.textContent = gameState.collectedCoins;
       ui.gems.textContent = gameState.collectedGems;
       ui.gemsCollected.textContent = `${gameState.collectedGems}/3`;
-      ui.defeated.textContent = `${gameState.defeated}/20`;
       ui.energy.textContent = `${Math.floor(gameState.energy)}%`;
       ui.energyBar.style.width = `${gameState.energy}%`;
       ui.progress.textContent = `${progress}%`;
       ui.progressBar.style.width = `${progress}%`;
-      ui.combo.textContent = gameState.combo > 1 ? `x${gameState.combo} COMBO!` : "Sẵn sàng!";
       ui.timer.textContent = `${Math.max(0, Math.ceil(gameState.seconds))}s`;
       ui.shieldStatus.textContent = gameState.player.shieldTime > 0
         ? `ĐANG BẬT ${gameState.player.shieldTime.toFixed(1)}s`
@@ -1548,19 +1497,6 @@
         ctx.beginPath(); ctx.moveTo(0, -15); ctx.lineTo(13, -3); ctx.lineTo(8, 14); ctx.lineTo(-9, 14); ctx.lineTo(-14, -3); ctx.closePath(); ctx.fill(); ctx.stroke();
         ctx.restore();
       });
-      gameState.enemies.forEach((enemy) => {
-        if (!enemy.alive) return;
-        const x = enemy.x - gameState.cameraX;
-        if (x < -40 || x > 1040) return;
-        ctx.fillStyle = "#fff0cf";
-        drawRoundedRect(x - 14, enemy.y + 12, 28, 24, 9); ctx.fill();
-        ctx.fillStyle = "#a24a27";
-        ctx.beginPath(); ctx.ellipse(x, enemy.y + 13, 19, 12, 0, Math.PI, 0); ctx.fill();
-        ctx.fillStyle = "#fff";
-        ctx.beginPath(); ctx.arc(x - 6, enemy.y + 20, 3, 0, Math.PI * 2); ctx.arc(x + 6, enemy.y + 20, 3, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = "#29233b";
-        ctx.beginPath(); ctx.arc(x - 6, enemy.y + 20, 1.4, 0, Math.PI * 2); ctx.arc(x + 6, enemy.y + 20, 1.4, 0, Math.PI * 2); ctx.fill();
-      });
       if (player.magnetTime > 0) {
         ctx.strokeStyle = "#7dece2aa"; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(player.x - gameState.cameraX + player.width / 2, player.y + player.height / 2, 115, 0, Math.PI * 2); ctx.stroke();
@@ -1576,7 +1512,6 @@
       const player = gameState.player;
       if (player.invulnerable > 0 || player.shieldTime > 0 || gameState.ended) return;
       gameState.lives -= 1;
-      gameState.combo = 0;
       gameState.energy = Math.max(0, gameState.energy - 15);
       gameState.hitFlash = 1;
       player.invulnerable = 1.25;
@@ -1594,17 +1529,6 @@
       }
     }
 
-    function defeatEnemy(enemy) {
-      if (!enemy.alive) return;
-      enemy.alive = false;
-      gameState.defeated += 1;
-      gameState.combo += 1;
-      gameState.comboTimer = 2.2;
-      gameState.score += 100 * Math.min(gameState.combo, 5);
-      gameState.player.vy = -390;
-      interfaceStatus.textContent = `Hạ quái nấm! Combo ${gameState.combo}.`;
-    }
-
     function activateAttack() {
       const player = gameState.player;
       if (gameState.paused || gameState.ended) return;
@@ -1620,13 +1544,6 @@
       player.attackCooldown = .38;
       gameState.energy = Math.max(0, gameState.energy - 7);
       updateInterface();
-      for (const enemy of gameState.enemies) {
-        if (!enemy.alive) continue;
-        const distance = enemy.x - (player.x + player.width / 2);
-        if (Math.abs(distance) < 70 && Math.sign(distance || player.facing) === player.facing && Math.abs(enemy.y - player.y) < 65) {
-          defeatEnemy(enemy);
-        }
-      }
     }
 
     function jump() {
@@ -1721,8 +1638,6 @@
       gameState.seconds = Math.max(0, gameState.seconds - delta);
       gameState.energy = Math.min(100, gameState.energy + delta * 5);
       gameState.hitFlash = Math.max(0, gameState.hitFlash - delta);
-      gameState.comboTimer -= delta;
-      if (gameState.comboTimer <= 0) gameState.combo = 0;
       player.invulnerable = Math.max(0, player.invulnerable - delta);
       player.dashTime = Math.max(0, player.dashTime - delta);
       player.attackTime = Math.max(0, player.attackTime - delta);
@@ -1790,24 +1705,6 @@
       if (player.y > 630) {
         loseLife();
         return;
-      }
-      if (player.grounded && gameState.comboTimer < 0 && gameState.combo > 0) gameState.combo = 0;
-
-      for (const enemy of gameState.enemies) {
-        if (!enemy.alive) continue;
-        enemy.x += enemy.direction * enemy.speed * delta;
-        if (Math.abs(enemy.x - enemy.homeX) > enemy.range) enemy.direction *= -1;
-        const overlap = player.x + player.width > enemy.x - 16 && player.x < enemy.x + 16 &&
-          player.y + player.height > enemy.y + 7 && player.y < enemy.y + 32;
-        if (!overlap) continue;
-        if (player.vy > 80 && previousBottom < enemy.y + 23) {
-          defeatEnemy(enemy);
-        } else if (player.attackTime > 0 && Math.sign(enemy.x - player.x || player.facing) === player.facing) {
-          defeatEnemy(enemy);
-        } else if (player.dashTime <= 0) {
-          loseLife();
-          if (gameState.ended) return;
-        }
       }
       for (const spike of spikes) {
         const touchesSpike = player.x + player.width > spike.x && player.x < spike.x + 40 &&
