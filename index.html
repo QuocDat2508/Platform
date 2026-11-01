@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whisker World 3D - Pastel Odyssey (Desktop Web)</title>
+  <!-- Google Fonts: Rubik & Fredoka for playful arcade typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Rubik:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons CDN -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Rubik', 'sans-serif'],
+            display: ['Fredoka', 'cursive', 'sans-serif']
+          },
+          colors: {
+            pastel: {
+              pink: '#ff6fa9',
+              pinkLight: '#ffe5f0',
+              purple: '#8b5cf6',
+              cyan: '#06b6d4',
+              yellow: '#fbbf24',
+              bg: '#f8f5ff'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
+      background: #fbf8ff;
+    }
+
+    header {
+      flex: 0 0 auto;
+      padding: 8px 12px !important;
+      box-shadow: 0 2px 12px #3622560a !important;
+    }
+
+    header > div {
+      max-width: 1440px !important;
+      min-height: 42px;
+    }
+
+    header h1 {
+      font-size: 14px !important;
+      white-space: nowrap;
+    }
+
+    header nav { gap: 20px !important; }
+    header nav a { font-size: 11px; font-weight: 500; }
+    header .max-w-7xl > div:first-child { gap: 12px; }
+    header .max-w-7xl > div:first-child > div:first-child { gap: 7px; }
+    header .max-w-7xl > div:first-child > div:first-child > div:first-child {
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+    }
+    header .max-w-7xl > div:first-child > div:first-child > div:last-child span {
+      font-size: 9px;
+      white-space: nowrap;
+    }
+    header .max-w-7xl > div:first-child > div:last-child {
+      padding: 5px 10px;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+    header .max-w-7xl > div:last-child { gap: 7px; }
+    header .max-w-7xl > div:last-child > div {
+      padding: 4px 9px;
+      font-size: 10px;
+    }
+    header .max-w-7xl > div:last-child > div:last-child {
+      width: 30px;
+      height: 30px;
+      padding: 0;
+    }
+
+    main {
+      width: 100% !important;
+      max-width: 1440px !important;
+      padding: 12px 12px 10px !important;
+      gap: 12px !important;
+      align-self: center;
+    }
+
+    main > section {
+      min-height: 64px;
+      padding: 9px 10px !important;
+      border-radius: 13px !important;
+      gap: 8px !important;
+    }
+
+    main > section .w-11 {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 2px solid #ec4899;
+      background: #fff;
+      color: #b51767;
+      box-shadow: none;
+    }
+
+    main > section h2 { font-size: 14px !important; }
+    main > section p { font-size: 10px; }
+    main > section > div:last-child { gap: 5px !important; }
+    main > section > div:last-child > div {
+      padding: 5px 9px !important;
+      border-radius: 10px !important;
+      font-size: 10px !important;
+    }
+    main > section > div:last-child button {
+      width: 28px;
+      height: 28px;
+    }
+
+    main > div {
+      display: grid !important;
+      grid-template-columns: minmax(0, 3.15fr) minmax(205px, 1fr) !important;
+      gap: 14px !important;
+      align-items: start;
+    }
+
+    main > div > section,
+    main > div > aside {
+      grid-column: auto !important;
+      min-width: 0;
+    }
+
+    main > div > section { gap: 10px !important; }
+    .game-stage {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      border: 1px solid #e8ddff !important;
+      border-radius: 13px !important;
+      background: linear-gradient(#46b8ff, #d6f4ff 70%, #70d65e);
+      box-shadow: 0 5px 16px #4227691c !important;
+    }
+
+    .game-art {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .game-canvas {
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+    .game-art { display: none; }
+
+    .game-stage > div { z-index: 2; }
+    .game-stage .stage-top-left { top: 10px; left: 10px; gap: 4px; }
+    .game-stage .stage-top-left > div {
+      width: fit-content;
+      max-width: min(100%, 350px);
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #fffF;
+      border-color: #f0d7ff;
+      color: #27213d;
+      font-size: 9px;
+      box-shadow: 0 2px 6px #37234a20;
+      backdrop-filter: none;
+    }
+    .game-stage .stage-top-left > div:nth-child(2) { font-size: 9px; }
+    .game-stage .stage-top-right { top: 9px; right: 9px; }
+    .game-stage .stage-top-right > div {
+      padding: 4px 8px;
+      color: #173c49;
+      background: #fffE;
+      border-color: #e4faff;
+      font-size: 9px;
+    }
+    .game-stage .stage-top-right button {
+      width: 29px;
+      height: 29px;
+      color: #334155;
+      background: #fffD;
+      border-color: #fff;
+    }
+
+    .game-center-hud {
+      position: absolute;
+      z-index: 2;
+      top: 10px;
+      left: 50%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 4px 10px;
+      transform: translateX(-50%);
+      border: 1px solid #fff9;
+      border-radius: 999px;
+      background: #19355b38;
+      color: #fff;
+      font-size: 15px;
+      text-shadow: 0 2px 3px #34415d99;
+      white-space: nowrap;
+    }
+
+    .game-center-hud .hearts { color: #ff5592; letter-spacing: 2px; }
+
+    .touch-controls {
+      position: absolute;
+      z-index: 3;
+      right: 11px;
+      bottom: 56px;
+      left: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+    .touch-controls > div { display: flex; gap: 5px; }
+    .touch-action-controls { display: flex; align-items: center; gap: 5px; }
+    .touch-controls button {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      place-items: center;
+      border: 1px solid #ffffffa6;
+      border-radius: 50%;
+      background: #fff9;
+      color: #fff;
+      font-size: 22px;
+      font-weight: 800;
+      text-shadow: 0 1px 3px #334155;
+      box-shadow: 0 2px 8px #16233435;
+      pointer-events: auto;
+    }
+    .touch-controls .jump-button { width: 66px; height: 66px; font-size: 27px; }
+    .touch-controls .action-button { width: 44px; height: 44px; font-size: 17px; }
+
+    .game-stage .stage-bottom {
+      bottom: 9px;
+      left: 10px;
+      right: 10px;
+    }
+    .game-stage .stage-bottom > div {
+      padding: 6px 9px;
+      border-radius: 10px;
+      background: #fffF;
+      border-color: #f0d7ff;
+      color: #33223c;
+      box-shadow: 0 2px 6px #37234a20;
+      backdrop-filter: none;
+      font-size: 9px;
+    }
+    .game-stage .stage-bottom > div:first-child { width: 225px; }
+    .game-stage .stage-bottom .h-2\.5 {
+      height: 7px;
+      background: #f5dce9;
+    }
+    .game-stage .stage-bottom .h-2\.5 > div { background: linear-gradient(90deg, #ed4e92, #fc7cad); }
+    .game-stage .stage-bottom > div:last-child { gap: 8px; }
+
+    .paused-overlay {
+      position: absolute;
+      z-index: 5 !important;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: #21153366;
+      color: #fff;
+      text-align: center;
+      backdrop-filter: blur(3px);
+    }
+    .paused-overlay.is-visible { display: flex; }
+    .paused-overlay strong {
+      display: block;
+      padding: 14px 22px;
+      border: 1px solid #ffffff7a;
+      border-radius: 16px;
+      background: #fff2;
+      font-family: Fredoka, sans-serif;
+      font-size: 24px;
+    }
+    .paused-overlay button {
+      margin-top: 12px;
+      padding: 8px 16px;
+      border: 0;
+      border-radius: 999px;
+      background: #ff6fa9;
+      color: #fff;
+      font: 700 14px Rubik, sans-serif;
+      cursor: pointer;
+    }
+    .game-stage:fullscreen {
+      --game-frame-width: min(100vw, calc(100vh * 1.7777778));
+      --game-frame-height: min(100vh, calc(100vw * 0.5625));
+      width: 100vw;
+      height: 100vh;
+      aspect-ratio: auto;
+      border-radius: 0 !important;
+      background: #15213a;
+      box-shadow: none !important;
+    }
+    .game-stage:fullscreen .game-canvas {
+      inset: auto;
+      top: 50%;
+      left: 50%;
+      width: var(--game-frame-width);
+      height: var(--game-frame-height);
+      transform: translate(-50%, -50%);
+      object-fit: fill;
+    }
+    .game-stage:fullscreen .stage-top-left {
+      top: max(10px, calc(50vh - 28.125vw + 10px));
+      left: max(10px, calc(50vw - 88.8889vh + 10px));
+    }
+    .game-stage:fullscreen .stage-top-right {
+      top: max(9px, calc(50vh - 28.125vw + 9px));
+      right: max(9px, calc(50vw - 88.8889vh + 9px));
+    }
+    .game-stage:fullscreen .game-center-hud {
+      top: max(10px, calc(50vh - 28.125vw + 10px));
+    }
+    .game-stage:fullscreen .stage-bottom {
+      bottom: max(9px, calc(50vh - 28.125vw + 9px));
+      left: max(10px, calc(50vw - 88.8889vh + 10px));
+      right: max(10px, calc(50vw - 88.8889vh + 10px));
+    }
+    .game-stage:fullscreen .touch-controls {
+      bottom: max(56px, calc(50vh - 28.125vw + 56px));
+      left: max(11px, calc(50vw - 88.8889vh + 11px));
+      right: max(11px, calc(50vw - 88.8889vh + 11px));
+    }
+
+    .powerup-card {
+      width: 100%;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+    }
+    .powerup-card:focus-visible {
+      outline: 3px solid #8b5cf6;
+      outline-offset: 2px;
+    }
+    .powerup-card:disabled { cursor: not-allowed; opacity: .58; }
+
+    main > div > section > div:last-child {
+      padding: 8px 10px !important;
+      gap: 6px !important;
+      border-radius: 13px !important;
+    }
+    main > div > section > div:last-child > div:first-child { gap: 8px; }
+    main > div > section > div:last-child h3 { font-size: 13px; }
+    main > div > section > div:last-child > div:last-child {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 6px;
+    }
+    main > div > section > div:last-child > div:last-child > div {
+      padding: 5px 4px;
+      border-radius: 10px;
+      gap: 2px;
+      font-size: 9px;
+      background: #f8f3ff;
+      border-color: #eee5fa;
+    }
+    main > div > section > div:last-child kbd {
+      padding: 1px 5px;
+      font-size: 9px;
+    }
+    main > div > section > div:last-child > div:last-child > div > span:first-of-type {
+      margin-top: 0 !important;
+      font-size: 9px;
+      line-height: 1.05;
+    }
+    main > div > section > div:last-child > div:last-child span:last-child {
+      font-size: 9px;
+      line-height: 1.15;
+    }
+
+    main > div > aside { gap: 10px !important; }
+    main > div > aside > div {
+      padding: 11px !important;
+      gap: 9px !important;
+      border-radius: 14px !important;
+      box-shadow: 0 2px 8px #4425680a !important;
+    }
+    main > div > aside h4 { font-size: 13px !important; }
+    main > div > aside > div:first-child > div:first-child > div:first-child { min-width: 0; }
+    main > div > aside > div:first-child > div:first-child > div:first-child > div:first-child {
+      width: 26px;
+      height: 26px;
+      flex: 0 0 26px;
+    }
+    main > div > aside > div:first-child > div:first-child h4 {
+      font-size: 12px !important;
+      white-space: nowrap;
+    }
+    main > div > aside > div:first-child > div:first-child > div > span {
+      font-size: 8px !important;
+      letter-spacing: .02em;
+      white-space: nowrap;
+    }
+    main > div > aside > div:first-child > div:first-child > span:last-child {
+      padding: 3px 6px;
+      font-size: 8px;
+    }
+    main > div > aside > div:first-child > div:last-child { gap: 6px !important; }
+    main > div > aside > div:first-child > div:last-child > div {
+      padding: 5px 6px !important;
+      border-radius: 10px !important;
+    }
+    main > div > aside > div:first-child > div:last-child > div > span {
+      width: 19px;
+      height: 19px;
+      border-radius: 7px;
+    }
+    main > div > aside > div:first-child > div:last-child p { font-size: 9px; line-height: 1.2; }
+    main > div > aside > div:first-child > div:last-child p + p { font-size: 9px; }
+    main > div > aside > div:first-child > div:last-child > div:last-child > div {
+      padding: 6px !important;
+      font-size: 9px;
+      line-height: 1.15;
+    }
+    main > div > aside > div:nth-child(2) > div:last-child { gap: 6px !important; }
+    main > div > aside > div:nth-child(2) > div:last-child > div {
+      padding: 6px 4px !important;
+      gap: 3px !important;
+      border-radius: 11px !important;
+    }
+    main > div > aside > div:nth-child(2) .w-10 {
+      width: 29px;
+      height: 29px;
+    }
+    main > div > aside > div:nth-child(2) span { font-size: 9px !important; line-height: 1.1; }
+    main > div > aside > div:nth-child(3) { gap: 5px !important; }
+    main > div > aside > div:nth-child(3) .h-2\.5 { height: 8px; }
+    .game-stage .stage-bottom > div:first-child span:first-child { color: #b51d68 !important; }
+    .game-stage .stage-bottom > div:first-child > div { background: #f3d9e5; }
+
+    footer {
+      flex: 0 0 auto;
+      min-height: 34px;
+      padding: 7px 14px !important;
+      font-size: 10px !important;
+    }
+    footer > div { gap: 10px !important; }
+
+    @media (max-width: 800px) {
+      body { height: auto; min-height: 100vh; overflow: auto; }
+      main { align-self: stretch; }
+      main > div { grid-template-columns: minmax(0, 1fr) !important; }
+      main > div > aside {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      main > div > aside > div:first-child { grid-row: span 2; }
+    }
+
+    @media (min-width: 1000px) and (max-height: 760px) {
+      main { max-width: 960px !important; }
+    }
+
+    @media (max-width: 560px) {
+      header { padding: 8px !important; }
+      header nav,
+      header .max-w-7xl > div:first-child > div:last-child,
+      header .max-w-7xl > div:last-child > div:nth-child(4) { display: none !important; }
+      header .max-w-7xl > div:last-child { gap: 4px; }
+      header .max-w-7xl > div:last-child > div { padding: 4px 6px; }
+      main { padding: 8px !important; }
+      main > section { align-items: flex-start !important; }
+      main > section > div:last-child { justify-content: flex-start; }
+      main > section > div:last-child > div { padding: 4px 6px !important; }
+      .game-stage .stage-top-left > div:nth-child(2) { display: none; }
+      .game-center-hud { display: none; }
+      .touch-controls { bottom: 48px; }
+      .touch-controls button { width: 38px; height: 38px; font-size: 18px; }
+      .touch-controls .jump-button { width: 50px; height: 50px; }
+      .touch-controls .action-button { width: 34px; height: 34px; font-size: 15px; }
+      .game-stage .stage-bottom > div:last-child { display: none; }
+      main > div > section > div:last-child > div:last-child {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      main > div > aside { grid-template-columns: minmax(0, 1fr); }
+      main > div > aside > div:first-child { grid-row: auto; }
+      footer > div:last-child { display: none; }
+    }
+  </style>
+</head>
+<body class="bg-[#f8f5ff] text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-pink-300">
+
+  <!-- TOP HEADER / GLOBAL NAVIGATION -->
+  <header class="bg-white/95 backdrop-blur-md border-b border-purple-100 sticky top-0 z-50 px-6 py-3 shadow-sm">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <!-- Brand & World Indicator -->
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#ff6fa9] to-[#8b5cf6] flex items-center justify-center text-white shadow-md shadow-pink-200">
+            <i class="ph-fill ph-paw-print text-2xl"></i>
+          </div>
+          <div>
+            <h1 class="font-display font-bold text-lg text-slate-900 tracking-tight leading-none">Whisker World 3D</h1>
+            <span class="text-[11px] font-semibold tracking-wider text-pink-500 uppercase">Pastel Odyssey</span>
+          </div>
+        </div>
+
+        <div class="hidden sm:flex items-center gap-2 bg-purple-50/80 border border-purple-200/60 rounded-full px-3.5 py-1 text-xs font-medium text-purple-900">
+          <i class="ph-bold ph-compass text-purple-600"></i>
+          <span>World 1-1: Whisker Meadows</span>
+        </div>
+      </div>
+
+      <!-- Center Nav Links -->
+      <nav class="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-600">
+        <a href="#" class="hover:text-pink-600 transition-colors">World Map</a>
+        <a href="#" class="hover:text-pink-600 transition-colors">Paws Vault</a>
+        <a href="#" class="hover:text-pink-600 transition-colors">Highscores</a>
+        <a href="#" class="hover:text-pink-600 transition-colors">Badges</a>
+      </nav>
+
+      <!-- Player Currencies & Controls -->
+      <div class="flex items-center gap-3">
+        <!-- Coins -->
+        <div class="flex items-center gap-1.5 bg-amber-50 border border-amber-200/70 rounded-full px-3 py-1 shadow-inner text-xs font-bold text-amber-900">
+          <span class="text-amber-500 text-sm">🪙</span>
+          <span>1,420</span>
+        </div>
+
+        <!-- Diamonds -->
+        <div class="flex items-center gap-1.5 bg-cyan-50 border border-cyan-200/70 rounded-full px-3 py-1 text-xs font-bold text-cyan-900">
+          <span class="text-cyan-500 text-sm">💎</span>
+          <span>48</span>
+        </div>
+
+        <!-- Lives -->
+        <div class="flex items-center gap-1 bg-rose-50 border border-rose-200/70 rounded-full px-2.5 py-1 text-xs font-bold text-rose-600">
+          <i class="ph-fill ph-heart"></i>
+          <span>x3</span>
+        </div>
+
+        <!-- Audio / Fullscreen / Pause Actions -->
+        <div class="flex items-center gap-1 border-l border-slate-200 pl-3">
+          <button type="button" title="Âm thanh" aria-label="Âm thanh" class="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-colors">
+            <i class="ph ph-speaker-high text-lg"></i>
+          </button>
+          <button type="button" title="Toàn màn hình" aria-label="Toàn màn hình" class="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-colors">
+            <i class="ph ph-corners-out text-lg"></i>
+          </button>
+          <button type="button" title="Cài đặt" aria-label="Cài đặt" class="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-colors">
+            <i class="ph ph-gear text-lg"></i>
+          </button>
+        </div>
+
+        <!-- Avatar -->
+        <div class="w-9 h-9 rounded-full bg-pink-100 border-2 border-pink-400 overflow-hidden flex items-center justify-center text-pink-600 font-bold shadow-sm">
+          <i class="ph-fill ph-user text-xl"></i>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WRAPPER -->
+  <main class="max-w-7xl mx-auto w-full p-4 sm:p-6 flex-1 flex flex-col gap-6">
+
+    <!-- SUB-HUD BAR (STAGE INFO & LIVE METRICS) -->
+    <section class="bg-white rounded-2xl p-3.5 border border-purple-100/80 shadow-sm flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-pink-500 to-purple-500 flex items-center justify-center text-white shadow-md">
+            <i class="ph-fill ph-cat text-2xl"></i>
+          </div>
+          <span class="absolute -bottom-1 -right-1 bg-amber-400 text-slate-900 text-[10px] font-extrabold px-1 rounded-full ring-2 ring-white">Lv.14</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="font-display font-bold text-base text-slate-900">Thế Giới 1-1</h2>
+            <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded-full">Đồng Cỏ Mây Nắng</span>
+          </div>
+          <p class="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
+            <i class="ph ph-cloud-sun"></i> Thời tiết đẹp • Thác nước Whisker Falls • Độ khó: 3.5/5
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Counters -->
+      <div class="flex flex-wrap items-center gap-2 sm:gap-4 font-bold text-xs">
+        <div class="bg-purple-50 border border-purple-200 px-3 py-1.5 rounded-xl flex items-center gap-2 text-purple-900">
+          <i class="ph-fill ph-star text-amber-500 text-sm"></i>
+          <span><span id="score-value">0</span> <span class="font-normal text-purple-700">PTS</span></span>
+        </div>
+
+        <div class="bg-pink-50 border border-pink-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-pink-700">
+          <span id="lives-value" class="inline-flex items-center gap-1">
+            <i class="ph-fill ph-heart text-pink-500 text-sm"></i>
+            <i class="ph-fill ph-heart text-pink-500 text-sm"></i>
+            <i class="ph-fill ph-heart text-pink-500 text-sm"></i>
+          </span>
+          <span id="lives-count" class="text-slate-800 ml-1">x3</span>
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-amber-900">
+          <span class="text-sm">🪙</span>
+          <span><span id="coins-value">0</span> <span class="font-normal text-slate-400">/ 48</span></span>
+        </div>
+
+        <div class="bg-cyan-50 border border-cyan-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-cyan-900">
+          <span class="text-sm">💎</span>
+          <span><span id="gems-value">0</span> <span class="font-normal text-slate-400">/ 3</span></span>
+        </div>
+
+        <div class="bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-rose-700 font-mono">
+          <i class="ph-bold ph-timer text-sm"></i>
+          <span id="timer-value">0s</span>
+        </div>
+
+        <button type="button" class="w-9 h-9 rounded-xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-700 transition" title="Tạm dừng" aria-label="Tạm dừng">
+          <i class="ph-bold ph-pause text-base"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- CENTER GAME VIEWPORT & SIDEBAR HUD -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- LEFT: GAME SCREEN VIEWPORT (9 COLS) -->
+      <section class="lg:col-span-8 xl:col-span-9 flex flex-col gap-4">
+        <!-- 16:9 Arcade Canvas Container -->
+        <div class="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-slate-900 group game-stage" aria-label="Màn chơi Whisker Meadows">
+          <!-- Game Image / Render Layer -->
+          <svg class="game-art" viewBox="0 0 1000 562" aria-hidden="true">
+            <defs>
+              <linearGradient id="sky" x2="0" y2="1">
+                <stop stop-color="#1595f8"/>
+                <stop offset=".58" stop-color="#55c8ff"/>
+                <stop offset="1" stop-color="#c5f6ff"/>
+              </linearGradient>
+              <linearGradient id="water" x2="0" y2="1">
+                <stop stop-color="#94f4ff"/>
+                <stop offset="1" stop-color="#22a9f1"/>
+              </linearGradient>
+              <linearGradient id="grass" x2="0" y2="1">
+                <stop stop-color="#9bf04b"/>
+                <stop offset=".4" stop-color="#4dc72c"/>
+                <stop offset="1" stop-color="#29902c"/>
+              </linearGradient>
+              <linearGradient id="soil" x2="0" y2="1">
+                <stop stop-color="#bb6d36"/>
+                <stop offset="1" stop-color="#84411e"/>
+              </linearGradient>
+              <linearGradient id="catFur" x2="0" y2="1">
+                <stop stop-color="#fff"/>
+                <stop offset="1" stop-color="#e4edff"/>
+              </linearGradient>
+              <filter id="softShadow" x="-30%" y="-30%" width="160%" height="170%">
+                <feGaussianBlur stdDeviation="7"/>
+              </filter>
+              <pattern id="brick" width="38" height="30" patternUnits="userSpaceOnUse">
+                <path d="M0 0h38v30H0z" fill="#a95427" stroke="#74381d" stroke-width="3"/>
+                <path d="M19 0v15M0 15h38M8 15v15" fill="none" stroke="#d9833d" stroke-width="2"/>
+              </pattern>
+              <pattern id="spots" width="38" height="24" patternUnits="userSpaceOnUse">
+                <circle cx="7" cy="8" r="2" fill="#f3bd76" opacity=".5"/>
+                <circle cx="28" cy="18" r="2" fill="#5c2c19" opacity=".25"/>
+              </pattern>
+            </defs>
+            <path fill="url(#sky)" d="M0 0h1000v562H0z"/>
+            <circle cx="820" cy="94" r="39" fill="#fff6ad" opacity=".8"/>
+            <g fill="#fff" opacity=".85">
+              <path d="M79 119c-26 0-35-27-14-42 6-29 48-32 58-5 24-3 33 32 9 44H79z"/>
+              <path d="M390 80c-20 0-25-20-10-31 6-23 39-24 47-3 20-2 26 26 7 34h-44z"/>
+              <path d="M688 155c-23 0-31-23-14-37 5-25 43-27 52-4 22-3 29 28 8 39h-46z"/>
+              <path d="M874 229c-18 0-24-18-11-29 5-20 34-21 41-3 17-2 23 22 6 32h-36z"/>
+            </g>
+            <g opacity=".48" fill="#68c5ee">
+              <path d="M0 335 120 218l105 117 105-142 152 142 122-111 137 111 116-137 143 137v124H0z"/>
+              <path d="m0 396 170-119 118 119 133-153 141 153 117-100 139 100 118-147 164 147v94H0z" fill="#7ad9ee"/>
+            </g>
+            <path d="M83 338q18-91 45-137" stroke="#8a512b" stroke-width="20" stroke-linecap="round"/>
+            <g fill="#43bd54" stroke="#27994b" stroke-width="5">
+              <circle cx="61" cy="214" r="44"/><circle cx="105" cy="190" r="52"/>
+              <circle cx="147" cy="215" r="42"/><circle cx="88" cy="246" r="49"/>
+            </g>
+            <g fill="#8ce85f">
+              <circle cx="42" cy="198" r="10"/><circle cx="99" cy="162" r="11"/>
+              <circle cx="145" cy="199" r="9"/><circle cx="76" cy="235" r="8"/>
+            </g>
+            <path d="M176 364q52-78 102-40" fill="none" stroke="#d7a4e7" stroke-width="12" opacity=".8"/>
+            <path d="M178 364q52-78 102-40" fill="none" stroke="#fff1d2" stroke-width="5" opacity=".9"/>
+            <!-- Floating cloud castle -->
+            <g transform="translate(747 147)">
+              <ellipse cx="113" cy="180" rx="165" ry="20" fill="#537ecd" opacity=".27"/>
+              <path d="M0 178h238v-94h-28V33h-52v51h-20V0h-63v84H54V47H8v37H0z" fill="#ffd7f1" stroke="#bb8bdc" stroke-width="5"/>
+              <path d="M0 117h238v20H0zM54 33h46v16H54zM158 20h52v16h-52z" fill="#ff91c4"/>
+              <path d="M80 178v-45q0-34 34-34t34 34v45" fill="#8a67cd"/>
+              <path d="M89 178v-42q0-24 25-24t25 24v42" fill="#b9edff"/>
+              <path d="M181 83h21v47h-21zM19 89h18v42H19z" fill="#fff2a1"/>
+              <path d="M77 0 108-26 140 0M151 33l33-24 32 24M5 47l25-24 27 24" fill="#ed6da9" stroke="#b65c9d" stroke-width="4"/>
+              <path d="M-20 179q60 9 111 0t106 0q28 10 69 0v24H-20z" fill="#f8f6ff"/>
+              <path d="M31 180q14 10 14 29M216 180q-15 9-16 29" stroke="url(#water)" stroke-width="12" fill="none"/>
+            </g>
+            <!-- Waterfall and far islands -->
+            <path d="M624 310h108v156H624z" fill="url(#water)" opacity=".9"/>
+            <path d="M648 310h13v157h-13zM691 310h8v157h-8z" fill="#e1ffff" opacity=".72"/>
+            <path d="M0 407q74-49 158 0t158 0q65-38 126 0t126 0q73-43 143 0v76H0z" fill="#4fc94a"/>
+            <g fill="#ffe44b">
+              <circle cx="78" cy="354" r="4"/><circle cx="112" cy="370" r="3"/><circle cx="181" cy="343" r="4"/>
+              <circle cx="536" cy="365" r="4"/><circle cx="568" cy="378" r="3"/><circle cx="760" cy="365" r="4"/>
+            </g>
+            <!-- Floating brick platforms -->
+            <g>
+              <path d="M379 190h58v46h-58z" fill="#ffbd30" stroke="#a8642a" stroke-width="5" rx="6"/>
+              <path d="M391 200h34v27h-34z" fill="#ffe47a"/>
+              <text x="400" y="221" font-size="26" font-weight="900" fill="#fff" stroke="#bd7d1b" stroke-width="1">?</text>
+              <path d="M439 190h38v46h-38zM477 190h38v46h-38zM515 190h38v46h-38z" fill="url(#brick)" stroke="#74381d" stroke-width="3"/>
+              <path d="M553 190h58v46h-58z" fill="#ffbd30" stroke="#a8642a" stroke-width="5" rx="6"/>
+              <path d="M565 200h34v27h-34z" fill="#ffe47a"/>
+              <text x="574" y="221" font-size="26" font-weight="900" fill="#fff" stroke="#bd7d1b" stroke-width="1">?</text>
+            </g>
+            <!-- Pink crystal -->
+            <g transform="translate(481 154)">
+              <path d="M0 18 15 0h25l15 18-27 32z" fill="#f34cff" stroke="#fff" stroke-width="3"/>
+              <path d="m15 0 13 18-1 32L0 18z" fill="#ffb5ff"/>
+              <path d="m40 0-12 18 1 32 26-32z" fill="#bb22ef"/>
+              <path d="M-8 54q27-8 59 0" stroke="#f8caff" stroke-width="4" opacity=".8"/>
+            </g>
+            <!-- Coins -->
+            <g fill="#ffbf27" stroke="#f58b13" stroke-width="5">
+              <ellipse cx="347" cy="269" rx="16" ry="22"/><ellipse cx="394" cy="250" rx="16" ry="22"/>
+              <ellipse cx="438" cy="269" rx="16" ry="22"/>
+            </g>
+            <g fill="#fff0a0">
+              <path d="M347 251v36M394 232v36M438 251v36" stroke="#fff0a0" stroke-width="3"/>
+              <circle cx="347" cy="268" r="4"/><circle cx="394" cy="249" r="4"/><circle cx="438" cy="268" r="4"/>
+            </g>
+            <path d="M0 322q13-19 27-3 15-22 30-3 14-21 29-2 14-18 29 1 16-20 31 1 17-17 31 2 17-15 33 4 15-15 31 2 16-14 32 3 14-12 27 4l9 23H0z" fill="url(#grass)"/>
+            <path d="M0 348h313v51H0z" fill="url(#soil)"/>
+            <path d="M0 348h313v51H0z" fill="url(#spots)"/>
+            <g transform="translate(63 282)">
+              <path d="M23 27v63" stroke="#a9572a" stroke-width="9"/>
+              <path d="M0 11h49v34H0z" fill="#ef9a42" stroke="#9e5524" stroke-width="5"/>
+              <path d="M10 28h23M24 19l10 9-10 9" fill="none" stroke="#fff1bf" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <!-- Main floating grassy island -->
+            <path d="M388 326q10-14 20-4 14-22 27-4 16-18 28-2 14-23 30-3 16-20 30-1 14-20 28 2 17-18 32 1 14-17 30 3 19-17 37 2 17-16 32 3 15-12 28 5l-8 78q-17 16-34 0t-34 0q-17 16-34 0t-34 0q-17 16-34 0t-34 0q-17 16-34 0t-34 0q-17 16-34 0t-34 0z" fill="url(#soil)"/>
+            <path d="M388 326q10-14 20-4 14-22 27-4 16-18 28-2 14-23 30-3 16-20 30-1 14-20 28 2 17-18 32 1 14-17 30 3 19-17 37 2 17-16 32 3 15-12 28 5l-6 28H390z" fill="url(#grass)"/>
+            <path d="M393 356h305v58H393z" fill="url(#spots)"/>
+            <g fill="#fff3a1">
+              <circle cx="425" cy="318" r="4"/><circle cx="484" cy="322" r="3"/><circle cx="548" cy="317" r="4"/><circle cx="637" cy="321" r="3"/>
+            </g>
+            <!-- Mushroom -->
+            <g transform="translate(590 289)">
+              <path d="M18 28h42v35q-21 15-42 0z" fill="#fff5d5" stroke="#a77845" stroke-width="3"/>
+              <path d="M0 32q0-35 39-35t39 35z" fill="#f43f35" stroke="#bb291e" stroke-width="4"/>
+              <circle cx="22" cy="13" r="8" fill="#fff"/><circle cx="54" cy="12" r="7" fill="#fff"/>
+              <circle cx="29" cy="42" r="3" fill="#44221a"/><circle cx="48" cy="42" r="3" fill="#44221a"/>
+            </g>
+            <!-- Main hero cat -->
+            <ellipse cx="291" cy="338" rx="59" ry="15" fill="#195eac" opacity=".28" filter="url(#softShadow)"/>
+            <g transform="translate(232 205) rotate(-8 58 67)">
+              <path d="M17 49 12 3q0-10 10-3l29 23M75 22 101 0q12-6 12 8l-1 42" fill="url(#catFur)" stroke="#e4b7ca" stroke-width="5"/>
+              <path d="M26 27 24 11l19 14M84 25 101 11l-1 21" fill="#fa9dc4"/>
+              <ellipse cx="62" cy="63" rx="50" ry="46" fill="url(#catFur)" stroke="#e2c6db" stroke-width="4"/>
+              <ellipse cx="44" cy="58" rx="12" ry="17" fill="#44c7ec"/>
+              <ellipse cx="78" cy="58" rx="12" ry="17" fill="#44c7ec"/>
+              <ellipse cx="47" cy="59" rx="4" ry="9" fill="#172b55"/>
+              <ellipse cx="81" cy="59" rx="4" ry="9" fill="#172b55"/>
+              <circle cx="40" cy="52" r="4" fill="#fff"/><circle cx="74" cy="52" r="4" fill="#fff"/>
+              <path d="M58 76q5-7 10 0l-5 5z" fill="#ef8aae"/>
+              <path d="M63 81q-8 10-15 0M63 81q8 10 15 0" fill="none" stroke="#7b5266" stroke-width="3" stroke-linecap="round"/>
+              <path d="M30 89q31 19 63-2l14 38q-41 22-81-4z" fill="#f348a6"/>
+              <path d="M38 118q-14 8-20 25M88 116q16 8 22 24" stroke="#fff" stroke-width="12" stroke-linecap="round"/>
+              <path d="M20 61h-23M20 72h-22M105 64h21M105 75h22" stroke="#987d92" stroke-width="2"/>
+              <path d="M20 137q-23 10-28-9" fill="none" stroke="#eef4ff" stroke-width="10" stroke-linecap="round"/>
+            </g>
+            <!-- Ground platforms -->
+            <g>
+              <path d="M0 427q12-17 25-2 12-22 25-3 12-20 27-1 11-21 25-2 15-23 29-1 14-20 28 2 17-18 30 3 17-17 34 3 13-15 28 3 14-16 29 1 16-17 30 2 12-14 27 2 14-17 28 2 17-16 31 3 14-18 30 1l8 27H0z" fill="url(#grass)"/>
+              <path d="M0 452h440v110H0z" fill="url(#soil)"/><path d="M0 452h440v110H0z" fill="url(#spots)"/>
+              <path d="M635 410q14-18 28-2 13-22 28-2 14-21 29-2 13-19 28-1 14-20 30-1 17-17 31 3 17-16 32 3 16-17 30 3 18-14 30 4 22-16 39 5 15-13 30 4 14-15 27 3l8 30H635z" fill="url(#grass)"/>
+              <path d="M635 437h365v125H635z" fill="url(#soil)"/><path d="M635 437h365v125H635z" fill="url(#spots)"/>
+              <path d="M0 536q80-19 147 0t145 0q69-22 147 0t149 0q92-20 188 0t224 0v26H0z" fill="#2b9f37"/>
+            </g>
+            <path d="M0 493q68-20 136 0t136 0q68-20 136 0t136 0q68-20 136 0t136 0q68-20 136 0t148 0v69H0z" fill="#a85d32" opacity=".92"/>
+            <path d="M0 486q68-20 136 0t136 0q68-20 136 0t136 0q68-20 136 0t136 0q68-20 136 0t148 0v18H0z" fill="#52cb43"/>
+            <path d="M0 506h1000v56H0z" fill="url(#spots)" opacity=".8"/>
+            <!-- Little mushroom enemy -->
+            <g transform="translate(431 445)">
+              <ellipse cx="34" cy="44" rx="38" ry="9" fill="#492719" opacity=".25"/>
+              <path d="M10 28q0-28 25-28t25 28z" fill="#9b4a24" stroke="#6b311d" stroke-width="4"/>
+              <path d="M15 27q20 9 41 0v24q-20 19-41 0z" fill="#c98247" stroke="#6b311d" stroke-width="4"/>
+              <ellipse cx="27" cy="34" rx="4" ry="7" fill="#fff"/><ellipse cx="44" cy="34" rx="4" ry="7" fill="#fff"/>
+              <circle cx="28" cy="35" r="2.5" fill="#281927"/><circle cx="44" cy="35" r="2.5" fill="#281927"/>
+            </g>
+            <!-- Flying bee -->
+            <g transform="translate(876 320)">
+              <ellipse cx="0" cy="0" rx="26" ry="16" fill="#ffbf36" stroke="#a45b16" stroke-width="4"/>
+              <path d="M-8-14v28M8-14v28" stroke="#4b3923" stroke-width="7"/>
+              <path d="M-9-13q-19-28-29-12 2 19 25 20M9-13q19-28 29-12-2 19-25 20" fill="#e8fbff" fill-opacity=".72"/>
+              <path d="m25-3 16-10-5 20z" fill="#5b452d"/>
+              <circle cx="-4" cy="-3" r="3" fill="#27304c"/>
+            </g>
+            <!-- Goal flag -->
+            <path d="M695 266v81" stroke="#fff" stroke-width="6"/>
+            <path d="M700 269q32-20 55 0l-8 24q-21-17-47-1z" fill="#ff4c61" stroke="#be2d50" stroke-width="3"/>
+            <path d="m721 272 7 7-7 7-7-7z" fill="#fff3a1"/>
+            <g fill="#fff3b0">
+              <path d="m179 261 7 16 17 2-13 11 4 17-15-9-15 9 4-17-13-11 17-2z"/>
+              <path d="m753 355 5 11 12 1-9 8 3 12-11-6-10 6 2-12-9-8 12-1z"/>
+            </g>
+          </svg>
+          <canvas class="game-canvas" width="1000" height="562" aria-label="Game Whisker Meadows"></canvas>
+
+          <!-- OVERLAY HUD (TOP LEFT: COMBO & OBJECTIVE) -->
+          <div class="absolute top-4 left-4 flex flex-col gap-2 z-10 pointer-events-auto stage-top-left">
+            <div class="backdrop-blur-md bg-black/45 border border-white/25 text-white px-3.5 py-1.5 rounded-full flex items-center gap-2 shadow-lg">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <span class="text-xs font-bold uppercase tracking-wider">TỐC ĐỘ BẬT NHẢY:</span>
+              <span id="combo-value" class="text-xs font-extrabold text-amber-300">Sẵn sàng!</span>
+            </div>
+            <div class="backdrop-blur-md bg-white/20 border border-white/30 text-white px-3.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 shadow">
+              <i class="ph-fill ph-medal text-amber-300"></i>
+              <span id="mission-value">Di chuyển sang phải, vượt chướng ngại vật và chạm cờ đích!</span>
+            </div>
+          </div>
+
+          <div class="game-center-hud" aria-label="Mạng và màn chơi">
+            <span class="hearts" aria-label="3 mạng">♥ ♥ ♥</span>
+            <span>🚩 1-1</span>
+          </div>
+
+          <!-- OVERLAY HUD (TOP RIGHT: FPS & SCREEN TOGGLE) -->
+          <div class="absolute top-4 right-4 flex items-center gap-2 z-10 pointer-events-auto stage-top-right">
+            <div class="backdrop-blur-md bg-black/40 border border-white/20 text-emerald-400 text-xs font-mono font-bold px-3 py-1 rounded-full flex items-center gap-1">
+              <i class="ph-bold ph-gauge"></i> 60 FPS
+            </div>
+            <button type="button" class="w-8 h-8 rounded-full backdrop-blur-md bg-white/30 border border-white/40 text-white flex items-center justify-center hover:bg-white/50 transition" title="Toàn màn hình" aria-label="Toàn màn hình">
+              <i class="ph ph-corners-out text-sm"></i>
+            </button>
+          </div>
+
+          <div class="touch-controls" aria-label="Điều khiển">
+            <div>
+              <button type="button" data-game-action="left" aria-label="Đi sang trái">◀</button>
+              <button type="button" data-game-action="right" aria-label="Đi sang phải">▶</button>
+            </div>
+            <div class="touch-action-controls">
+              <button type="button" class="action-button" data-game-action="attack" aria-label="Cào">✦</button>
+              <button type="button" class="action-button" data-game-action="dash" aria-label="Lướt" title="Lướt (Shift)">⚡</button>
+              <button type="button" class="action-button" data-game-action="shield" aria-label="Bật khiên">◉</button>
+              <button type="button" class="action-button" data-game-action="magnet" aria-label="Bật nam châm">🧲</button>
+              <button type="button" class="jump-button" data-game-action="jump" aria-label="Nhảy">⬆</button>
+            </div>
+          </div>
+
+          <div class="paused-overlay" aria-live="polite" aria-hidden="true">
+            <div>
+              <strong id="overlay-title">Đã tạm dừng<br><span id="overlay-message" class="text-sm font-sans font-medium">Nhấn Esc hoặc nút tiếp tục</span></strong>
+              <button id="restart-game" type="button" hidden>Chơi lại</button>
+            </div>
+          </div>
+
+          <!-- BOTTOM HUD (ENERGY & SECRETS) -->
+          <div class="absolute bottom-4 left-4 right-4 flex items-end justify-between z-10 pointer-events-none stage-bottom">
+            <!-- Energy Bar -->
+            <div class="backdrop-blur-md bg-black/50 border border-white/20 rounded-2xl p-2.5 flex flex-col gap-1 w-64 pointer-events-auto shadow-lg">
+              <div class="flex justify-between text-[11px] font-bold text-white tracking-wide">
+                <span class="flex items-center gap-1 text-pink-300"><i class="ph-fill ph-lightning"></i> THANH NĂNG LƯỢNG MÓNG VUỐT</span>
+                <span id="energy-value">100%</span>
+              </div>
+              <div class="h-2.5 w-full bg-white/20 rounded-full overflow-hidden p-0.5">
+                <div id="energy-bar" class="h-full bg-gradient-to-r from-pink-500 via-purple-400 to-cyan-400 rounded-full w-full transition-all"></div>
+              </div>
+            </div>
+
+            <!-- Stage Progress Mini Counter -->
+            <div class="backdrop-blur-md bg-black/45 border border-white/20 rounded-2xl px-4 py-2 flex items-center gap-4 text-xs font-bold text-white pointer-events-auto shadow-lg">
+              <span class="flex items-center gap-1.5"><i class="ph-fill ph-trophy text-amber-400"></i> Ngọc ẩn: <span id="gems-collected">0/3</span></span>
+              <span class="w-px h-3 bg-white/30"></span>
+              <span class="flex items-center gap-1.5"><i class="ph-fill ph-bug text-emerald-400"></i> Hạ nấm: <span id="enemies-defeated">0/12</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- KEYBOARD CONTROLS GUIDE (HƯỚNG DẪN BÀN PHÍM PC) -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-purple-100 shadow-sm flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-display font-bold text-sm text-slate-900 flex items-center gap-2">
+              <i class="ph-fill ph-keyboard text-pink-500 text-lg"></i>
+              Hướng Dẫn Phím Bàn Phím PC
+            </h3>
+            <span class="text-xs text-slate-500 font-medium">Tương thích hoàn hảo bàn phím cơ &amp; Tay cầm Gamepad</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 text-xs">
+            <!-- Move -->
+            <div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-xl flex flex-col gap-1 items-center text-center">
+              <div class="flex gap-1">
+                <kbd class="px-2 py-0.5 bg-white border border-slate-300 rounded shadow-sm font-mono font-bold text-slate-800">A</kbd>
+                <kbd class="px-2 py-0.5 bg-white border border-slate-300 rounded shadow-sm font-mono font-bold text-slate-800">D</kbd>
+              </div>
+              <span class="font-bold text-slate-800 mt-1">Chạy Trái / Phải</span>
+              <span class="text-[10px] text-slate-400">Di chuyển nhân vật</span>
+            </div>
+
+            <!-- Jump -->
+            <div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-xl flex flex-col gap-1 items-center text-center">
+              <div class="flex gap-1">
+                <kbd class="px-2 py-0.5 bg-white border border-slate-300 rounded shadow-sm font-mono font-bold text-slate-800">Space</kbd>
+                <kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded shadow-sm font-mono font-bold text-slate-800">W</kbd>
+              </div>
+              <span class="font-bold text-slate-800 mt-1">Nhảy Bổng / Nhảy Đúp</span>
+              <span class="text-[10px] text-slate-400">Bấm 2 lần để bật cao</span>
+            </div>
+
+            <!-- Dash -->
+            <div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-xl flex flex-col gap-1 items-center text-center">
+              <kbd class="px-2 py-0.5 bg-white border border-slate-300 rounded shadow-sm font-mono font-bold text-slate-800">Shift</kbd>
+              <span class="font-bold text-slate-800 mt-1">Lướt Gió (Dash)</span>
+              <span class="text-[10px] text-slate-400">Né bẫy đinh &amp; quái</span>
+            </div>
+
+            <!-- Attack -->
+            <div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-xl flex flex-col gap-1 items-center text-center">
+              <div class="flex gap-1">
+                <kbd class="px-2 py-0.5 bg-white border border-slate-300 rounded shadow-sm font-mono font-bold text-slate-800">J</kbd>
+                <kbd class="px-2 py-0.5 bg-white border border-slate-300 rounded shadow-sm font-mono font-bold text-slate-800">Z</kbd>
+              </div>
+              <span class="font-bold text-slate-800 mt-1">Cào Móng Vuốt</span>
+              <span class="text-[10px] text-slate-400">Tấn công quái vật Goomba</span>
+            </div>
+
+            <!-- Powerup -->
+            <div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-xl flex flex-col gap-1 items-center text-center">
+              <div class="flex gap-1">
+                <kbd class="px-2 py-0.5 bg-white border border-slate-300 rounded shadow-sm font-mono font-bold text-slate-800">K</kbd>
+                <kbd class="px-2 py-0.5 bg-white border border-slate-300 rounded shadow-sm font-mono font-bold text-slate-800">X</kbd>
+              </div>
+              <span class="font-bold text-slate-800 mt-1">Kích Hoạt Bảo Bối</span>
+              <span class="text-[10px] text-slate-400">Chuông thần &amp; Khiên</span>
+            </div>
+
+            <!-- Pause -->
+            <div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-xl flex flex-col gap-1 items-center text-center">
+              <kbd class="px-2 py-0.5 bg-white border border-slate-300 rounded shadow-sm font-mono font-bold text-slate-800">Esc</kbd>
+              <span class="font-bold text-slate-800 mt-1">Tạm Dừng / Menu</span>
+              <span class="text-[10px] text-slate-400">Mở túi đồ &amp; cài đặt</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: GAME RADAR & ARTIFACTS PANEL (3-4 COLS) -->
+      <aside class="lg:col-span-4 xl:col-span-3 flex flex-col gap-5">
+
+        <!-- WHISKER SENSE (TACTICAL RADAR) -->
+        <div class="bg-white rounded-3xl p-5 border border-purple-100 shadow-sm flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-xl bg-teal-500 text-white flex items-center justify-center">
+                <i class="ph-bold ph-radar text-lg"></i>
+              </div>
+              <div>
+                <h4 class="font-display font-bold text-sm text-slate-900 leading-tight">Whisker Sense</h4>
+                <span class="text-[10px] font-semibold text-teal-600 uppercase tracking-wider">Tactical Radar</span>
+              </div>
+            </div>
+            <span class="text-[10px] font-bold bg-teal-50 text-teal-700 px-2 py-0.5 rounded-full border border-teal-200">QUÉT 360°</span>
+          </div>
+
+          <!-- Radar Targets Detected -->
+          <div class="flex flex-col gap-2.5 text-xs">
+            <!-- Target 1 -->
+            <div class="bg-purple-50/70 border border-purple-200/70 rounded-2xl p-3 flex items-start gap-2.5">
+              <span class="w-6 h-6 rounded-lg bg-amber-400 text-slate-900 flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">?</span>
+              <div>
+                <p class="font-bold text-slate-900">Bẫy gai phía trước</p>
+                <p class="text-[11px] text-slate-500">Nhảy qua hoặc lướt bằng Shift</p>
+              </div>
+            </div>
+
+            <!-- Target 2 -->
+            <div class="bg-pink-50/70 border border-pink-200/70 rounded-2xl p-3 flex items-start gap-2.5">
+              <span class="w-6 h-6 rounded-lg bg-pink-500 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">💎</span>
+              <div>
+                <p class="font-bold text-slate-900">Ong mật tuần tra</p>
+                <p class="text-[11px] text-slate-500">Lướt qua hoặc cào để tự vệ</p>
+              </div>
+            </div>
+
+            <!-- Exploration Tip -->
+            <div class="bg-amber-50/70 border border-amber-200/70 rounded-2xl p-3 flex items-start gap-2 text-amber-900">
+              <i class="ph-fill ph-lightbulb text-amber-600 text-base shrink-0 mt-0.5"></i>
+              <div class="text-[11px] leading-relaxed">
+                <span class="font-bold">Mẹo thám hiểm:</span> Đạp lên đầu nấm để hạ quái; canh nhịp nhảy qua gai và những hố sâu nhé!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- QUICK SLOTS: BẢO BỐI SẴN SÀNG -->
+        <div class="bg-white rounded-3xl p-5 border border-purple-100 shadow-sm flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-display font-bold text-sm text-slate-900">Bảo Bối Sẵn Sàng</h4>
+            <span class="text-[11px] text-slate-400 font-medium">Slot Phím Nhanh</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <!-- Powerup 1 -->
+            <button type="button" class="powerup-card bg-pink-50/60 border border-pink-200 rounded-2xl p-3 flex flex-col items-center text-center gap-1.5 hover:shadow-md transition" data-powerup="shield" aria-label="Bật khiên bong bóng, phím K" aria-pressed="false">
+              <div class="w-10 h-10 rounded-full bg-pink-500 text-white flex items-center justify-center shadow-md shadow-pink-200">
+                <i class="ph-fill ph-shield-check text-xl"></i>
+              </div>
+              <span class="font-bold text-xs text-slate-800">Khiên Bong Bóng</span>
+              <span class="text-[10px] text-slate-400">Bảo vệ 5 giây (Phím K)</span>
+              <span data-powerup-status class="mt-1 bg-pink-100 text-pink-700 text-[10px] font-bold px-2 py-0.5 rounded-full">SẴN SÀNG</span>
+            </button>
+
+            <!-- Powerup 2 -->
+            <button type="button" class="powerup-card bg-cyan-50/60 border border-cyan-200 rounded-2xl p-3 flex flex-col items-center text-center gap-1.5 hover:shadow-md transition" data-powerup="magnet" aria-label="Bật nam châm hút xu, phím X" aria-pressed="false">
+              <div class="w-10 h-10 rounded-full bg-cyan-500 text-white flex items-center justify-center shadow-md shadow-cyan-200">
+                <i class="ph-fill ph-magnet text-xl"></i>
+              </div>
+              <span class="font-bold text-xs text-slate-800">Nam Châm Hút Xu</span>
+              <span class="text-[10px] text-slate-400">Hút xu 6 giây (Phím X)</span>
+              <span data-powerup-status class="mt-1 bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-full">SẴN SÀNG</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STAGE PROGRESS -->
+        <div class="bg-white rounded-3xl p-5 border border-purple-100 shadow-sm flex flex-col gap-2">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-900">
+            <span>Tiến Độ Bản Đồ</span>
+            <span id="progress-value" class="text-pink-600 font-extrabold text-sm">0%</span>
+          </div>
+          <div class="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
+            <div id="progress-bar" class="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full" style="width: 0%"></div>
+          </div>
+          <div class="flex justify-between text-[11px] text-slate-400 mt-1 font-medium">
+            <span>🚩 Bắt đầu</span>
+            <span>🏰 Lâu đài Mây</span>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+  </main>
+
+  <!-- BOTTOM BAR TICKER -->
+  <footer class="bg-white/80 border-t border-purple-100 px-6 py-2.5 text-xs text-slate-500 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-4">
+      <span class="flex items-center gap-1.5 font-medium text-pink-600">
+        <i class="ph-fill ph-cat"></i> Whisker Companion: Sẵn sàng hỗ trợ khám phá bí mật đồng cỏ!
+      </span>
+      <span class="hidden md:inline text-slate-300">•</span>
+      <span class="hidden md:flex items-center gap-1 text-slate-600">
+        <i class="ph-bold ph-check-circle text-emerald-500"></i> Zone Scanner: Hoạt động bình thường
+      </span>
+    </div>
+    <div class="flex items-center gap-3 font-mono text-[11px] text-slate-400">
+      <span>A D Run</span>
+      <span>•</span>
+      <span>Space Jump</span>
+      <span>•</span>
+      <span>J Scratch</span>
+      <span>•</span>
+      <span>K Khiên</span>
+      <span>•</span>
+      <span>X Hút xu</span>
+    </div>
+  </footer>
+
+  <p id="interface-status" class="sr-only" role="status" aria-live="polite"></p>
+  <script>
+    const gameStage = document.querySelector(".game-stage");
+    const pauseOverlay = document.querySelector(".paused-overlay");
+    const pauseButton = document.querySelector('button[aria-label="Tạm dừng"]');
+    const fullscreenButtons = document.querySelectorAll('button[title="Toàn màn hình"]');
+    const interfaceStatus = document.querySelector("#interface-status");
+    const canvas = document.querySelector(".game-canvas");
+    const ctx = canvas.getContext("2d");
+    const ui = {
+      score: document.querySelector("#score-value"),
+      lives: document.querySelector("#lives-value"),
+      livesCount: document.querySelector("#lives-count"),
+      coins: document.querySelector("#coins-value"),
+      gems: document.querySelector("#gems-value"),
+      gemsCollected: document.querySelector("#gems-collected"),
+      defeated: document.querySelector("#enemies-defeated"),
+      timer: document.querySelector("#timer-value"),
+      energy: document.querySelector("#energy-value"),
+      energyBar: document.querySelector("#energy-bar"),
+      progress: document.querySelector("#progress-value"),
+      progressBar: document.querySelector("#progress-bar"),
+      combo: document.querySelector("#combo-value"),
+      mission: document.querySelector("#mission-value"),
+      overlayTitle: document.querySelector("#overlay-title"),
+      overlayMessage: document.querySelector("#overlay-message"),
+      restart: document.querySelector("#restart-game"),
+      shieldStatus: document.querySelector('[data-powerup="shield"] [data-powerup-status]'),
+      magnetStatus: document.querySelector('[data-powerup="magnet"] [data-powerup-status]'),
+      shieldButton: document.querySelector('[data-powerup="shield"]'),
+      magnetButton: document.querySelector('[data-powerup="magnet"]'),
+      dashButton: document.querySelector('[data-game-action="dash"]'),
+      attackButton: document.querySelector('[data-game-action="attack"]')
+    };
+    const levelWidth = 6400;
+    const groundY = 470;
+    const platforms = [
+      { x: 0, end: 260, y: 380 },
+      { x: 0, end: 680, y: groundY }, { x: 790, end: 1450, y: groundY },
+      { x: 1570, end: 2300, y: groundY }, { x: 2420, end: 3140, y: groundY },
+      { x: 3260, end: 3980, y: groundY }, { x: 4100, end: 4780, y: groundY },
+      { x: 4900, end: 5680, y: groundY }, { x: 5800, end: levelWidth, y: groundY },
+      { x: 350, end: 520, y: 380 }, { x: 900, end: 1090, y: 375 },
+      { x: 1190, end: 1370, y: 315 }, { x: 1640, end: 1840, y: 380 },
+      { x: 1950, end: 2160, y: 335 }, { x: 2510, end: 2710, y: 375 },
+      { x: 2820, end: 3030, y: 310 }, { x: 3360, end: 3580, y: 380 },
+      { x: 3710, end: 3920, y: 320 }, { x: 4180, end: 4390, y: 375 },
+      { x: 4530, end: 4720, y: 310 }, { x: 4990, end: 5200, y: 375 },
+      { x: 5380, end: 5580, y: 315 }, { x: 5880, end: 6100, y: 375 }
+    ];
+    const spikePositions = [
+      500, 650, 855, 1085, 1390, 1670, 1870, 2205, 2470, 2740, 3035,
+      3310, 3600, 3890, 4160, 4420, 4745, 4960, 5250, 5630, 5860, 6170
+    ];
+    const spikes = spikePositions.map((x) => {
+      const platform = platforms
+        .filter((item) => x >= item.x && x <= item.end)
+        .sort((first, second) => first.y - second.y)[0];
+      return { x, y: platform ? platform.y : groundY };
+    });
+    const enemyStarts = [
+      580, 970, 1300, 1770, 2050, 2260, 2600, 2920, 3050, 3440, 3800,
+      3920, 4280, 4610, 4750, 5090, 5490, 5650, 5960, 6240
+    ];
+    const coinPositions = [];
+    for (let group = 0; group < 16; group++) {
+      const start = 280 + group * 390;
+      coinPositions.push(
+        { x: start, y: 390, collected: false },
+        { x: start + 35, y: 345, collected: false },
+        { x: start + 70, y: 390, collected: false }
+      );
+    }
+    const gemPositions = [
+      { x: 1060, y: 290, collected: false },
+      { x: 3190, y: 335, collected: false },
+      { x: 5230, y: 285, collected: false }
+    ];
+    const enemySeeds = enemyStarts.map((x, index) => {
+      const enemyPlatform = platforms
+        .filter((platform) => x >= platform.x && x <= platform.end)
+        .sort((first, second) => first.y - second.y)[0];
+      return {
+        x,
+        homeX: x,
+        y: (enemyPlatform ? enemyPlatform.y : groundY) - 38,
+        speed: index % 2 ? 48 : 64,
+        direction: index % 2 ? -1 : 1,
+        range: 75 + (index % 3) * 20,
+        alive: true
+      };
+    });
+    const input = { left: false, right: false };
+    let gameState;
+    let lastFrame = 0;
+    let displayedSecond = -1;
+
+    function newGameState() {
+      return {
+        player: {
+          x: 200, y: 380 - 60, width: 46, height: 60, vx: 0, vy: 0,
+          facing: 1, grounded: false, jumps: 0, invulnerable: 0,
+          dashTime: 0, attackTime: 0, shieldTime: 0, magnetTime: 0,
+          dashCooldown: 0, attackCooldown: 0
+        },
+        enemies: enemySeeds.map((enemy) => ({ ...enemy })),
+        coins: coinPositions.map((coin) => ({ ...coin })),
+        gems: gemPositions.map((gem) => ({ ...gem })),
+        cameraX: 0, score: 0, lives: 3, collectedCoins: 0, collectedGems: 0,
+        defeated: 0, energy: 100, seconds: 300, elapsed: 0,
+        checkpoint: { x: 200, platform: platforms[0] },
+        combo: 0, comboTimer: 0, hitFlash: 0, paused: false, ended: false,
+        won: false, messageTimer: 0
+      };
+    }
+
+    gameState = newGameState();
+
+    function setPaused(paused) {
+      if (gameState.ended) return;
+      gameState.paused = paused;
+      pauseOverlay.classList.toggle("is-visible", paused);
+      pauseOverlay.setAttribute("aria-hidden", String(!paused));
+      pauseButton.setAttribute("aria-pressed", String(paused));
+      pauseButton.setAttribute("title", paused ? "Tiếp tục" : "Tạm dừng");
+      pauseButton.setAttribute("aria-label", paused ? "Tiếp tục" : "Tạm dừng");
+      pauseButton.innerHTML = `<i class="ph-bold ${paused ? "ph-play" : "ph-pause"} text-base"></i>`;
+      if (!paused) {
+        input.left = false;
+        input.right = false;
+      }
+      updateInterface();
+    }
+
+    pauseButton.addEventListener("click", () => {
+      setPaused(!pauseOverlay.classList.contains("is-visible"));
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        if (document.fullscreenElement === gameStage) {
+          event.preventDefault();
+          document.exitFullscreen().catch(() => {
+            interfaceStatus.textContent = "Không thể thoát chế độ toàn màn hình.";
+          });
+        } else {
+          setPaused(!pauseOverlay.classList.contains("is-visible"));
+        }
+      }
+    });
+
+    fullscreenButtons.forEach((button) => {
+      button.addEventListener("click", async () => {
+        try {
+          if (document.fullscreenElement) {
+            await document.exitFullscreen();
+          } else {
+            await gameStage.requestFullscreen();
+          }
+        } catch (error) {
+          interfaceStatus.textContent = "Không thể bật toàn màn hình trong môi trường hiện tại.";
+        }
+      });
+    });
+
+    document.addEventListener("fullscreenchange", () => {
+      const isFullscreen = Boolean(document.fullscreenElement);
+      fullscreenButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(isFullscreen));
+        button.setAttribute("title", isFullscreen ? "Thoát toàn màn hình" : "Toàn màn hình");
+      });
+    });
+
+    function setOverlay(title, message, showRestart) {
+      ui.overlayTitle.firstChild.textContent = title;
+      ui.overlayMessage.textContent = message;
+      ui.restart.hidden = !showRestart;
+      pauseOverlay.classList.add("is-visible");
+      pauseOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function checkpointIsSafe(x, platform) {
+      const player = gameState.player;
+      if (!platform || x < platform.x + 8 || x + player.width > platform.end - 8) return false;
+      const collidesWithSpike = spikes.some((spike) =>
+        spike.y === platform.y && x + player.width > spike.x - 5 && x < spike.x + 45
+      );
+      if (collidesWithSpike) return false;
+      const center = x + player.width / 2;
+      const enemyNearby = gameState.enemies.some((enemy) =>
+        enemy.alive && Math.abs(enemy.x - center) < player.width + 28 &&
+        Math.abs(enemy.y + 20 - (platform.y - 20)) < 45
+      );
+      return !enemyNearby;
+    }
+
+    function saveCheckpoint(platform) {
+      if (!platform) return;
+      const player = gameState.player;
+      const isStanding = player.grounded && Math.abs(player.y + player.height - platform.y) <= 2;
+      const isAbovePlatform = !player.grounded && player.y + player.height <= platform.y + 22;
+      const overlapsPlatform = player.x + player.width > platform.x + 8 && player.x < platform.end - 8;
+      if (!overlapsPlatform || (!isStanding && !isAbovePlatform)) return;
+      const candidate = Math.max(platform.x + 10, Math.min(
+        platform.end - player.width - 10,
+        player.x - Math.sign(player.vx) * 18
+      ));
+      const maxOffset = Math.ceil((platform.end - platform.x) / 12);
+      for (let step = 0; step <= maxOffset; step++) {
+        const offset = step * 12;
+        const candidates = player.facing >= 0
+          ? [candidate - offset, candidate + offset]
+          : [candidate + offset, candidate - offset];
+        const safeX = candidates.find((position) => checkpointIsSafe(position, platform));
+        if (safeX !== undefined) {
+          if (safeX > gameState.checkpoint.x + 8) gameState.checkpoint = { x: safeX, platform };
+          return;
+        }
+      }
+    }
+
+    function restoreCheckpoint() {
+      const player = gameState.player;
+      const checkpoint = gameState.checkpoint;
+      const platform = checkpoint.platform;
+      const candidates = [checkpoint.x];
+      for (let offset = 30; offset <= 240; offset += 30) {
+        candidates.push(checkpoint.x - offset, checkpoint.x + offset);
+      }
+      const safeX = candidates.find((candidate) => checkpointIsSafe(candidate, platform));
+      player.x = safeX ?? Math.max(platform.x + 10, Math.min(checkpoint.x, platform.end - player.width - 10));
+      player.y = platform.y - player.height;
+      player.vx = 0;
+      player.vy = 0;
+      player.grounded = true;
+      player.jumps = 0;
+      gameState.cameraX = Math.max(0, Math.min(levelWidth - 1000, player.x - 280));
+    }
+
+    function updateInterface() {
+      const player = gameState.player;
+      const progress = Math.min(100, Math.floor(player.x / levelWidth * 100));
+      ui.score.textContent = gameState.score.toLocaleString("vi-VN");
+      ui.lives.innerHTML = Array.from({ length: gameState.lives }, () =>
+        '<i class="ph-fill ph-heart text-pink-500 text-sm"></i>'
+      ).join("");
+      ui.livesCount.textContent = `x${gameState.lives}`;
+      ui.coins.textContent = gameState.collectedCoins;
+      ui.gems.textContent = gameState.collectedGems;
+      ui.gemsCollected.textContent = `${gameState.collectedGems}/3`;
+      ui.defeated.textContent = `${gameState.defeated}/20`;
+      ui.energy.textContent = `${Math.floor(gameState.energy)}%`;
+      ui.energyBar.style.width = `${gameState.energy}%`;
+      ui.progress.textContent = `${progress}%`;
+      ui.progressBar.style.width = `${progress}%`;
+      ui.combo.textContent = gameState.combo > 1 ? `x${gameState.combo} COMBO!` : "Sẵn sàng!";
+      ui.timer.textContent = `${Math.max(0, Math.ceil(gameState.seconds))}s`;
+      ui.shieldStatus.textContent = gameState.player.shieldTime > 0
+        ? `ĐANG BẬT ${gameState.player.shieldTime.toFixed(1)}s`
+        : gameState.energy >= 20 ? "SẴN SÀNG • 20⚡" : "CẦN 20⚡";
+      ui.magnetStatus.textContent = gameState.player.magnetTime > 0
+        ? `ĐANG BẬT ${gameState.player.magnetTime.toFixed(1)}s`
+        : gameState.energy >= 15 ? "SẴN SÀNG • 15⚡" : "CẦN 15⚡";
+      ui.shieldButton.setAttribute("aria-pressed", String(gameState.player.shieldTime > 0));
+      ui.magnetButton.setAttribute("aria-pressed", String(gameState.player.magnetTime > 0));
+      ui.shieldButton.setAttribute("aria-label", gameState.player.shieldTime > 0
+        ? "Tắt khiên bong bóng" : "Bật khiên bong bóng, phím K");
+      ui.magnetButton.setAttribute("aria-label", gameState.player.magnetTime > 0
+        ? "Tắt nam châm hút xu" : "Bật nam châm hút xu, phím X");
+      ui.shieldButton.disabled = gameState.paused || gameState.ended || (gameState.player.shieldTime <= 0 && gameState.energy < 20);
+      ui.magnetButton.disabled = gameState.paused || gameState.ended ||
+        (gameState.player.magnetTime <= 0 && gameState.energy < 15);
+      ui.dashButton.disabled = gameState.paused || gameState.ended ||
+        gameState.player.dashCooldown > 0 || gameState.energy < 25;
+      ui.dashButton.title = gameState.player.dashCooldown > 0
+        ? `Lướt hồi chiêu ${gameState.player.dashCooldown.toFixed(1)} giây`
+        : gameState.energy < 25 ? "Cần 25 năng lượng để lướt" : "Lướt (Shift)";
+      ui.attackButton.disabled = gameState.paused || gameState.ended ||
+        gameState.player.attackCooldown > 0 || gameState.energy < 7;
+      if (gameState.won) {
+        ui.mission.textContent = "Đã về đích! Bạn đã vượt qua Whisker Meadows!";
+      } else if (gameState.ended) {
+        ui.mission.textContent = "Mèo con cần nghỉ một chút — hãy thử lại nhé!";
+      } else if (gameState.seconds <= 30) {
+        ui.mission.textContent = `Nhanh lên! Còn ${Math.ceil(gameState.seconds)} giây để tới cờ đích!`;
+      }
+    }
+
+    function drawRoundedRect(x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.roundRect(x, y, width, height, radius);
+    }
+
+    function drawPlatform(platform, cameraX) {
+      const x = platform.x - cameraX;
+      const width = platform.end - platform.x;
+      if (x + width < -40 || x > 1040) return;
+      ctx.fillStyle = "#99532e";
+      ctx.fillRect(x, platform.y, width, 110);
+      ctx.fillStyle = "#c17a3e";
+      for (let tile = Math.floor(platform.x / 34) * 34; tile < platform.end; tile += 34) {
+        const tx = tile - cameraX;
+        if (tx < x || tx > x + width) continue;
+        ctx.fillRect(tx, platform.y + 19, 2, 55);
+        ctx.fillRect(tx + 14, platform.y + 35, 3, 3);
+        ctx.fillRect(tx + 25, platform.y + 83, 3, 3);
+      }
+      ctx.fillStyle = "#50c93e";
+      ctx.fillRect(x, platform.y - 7, width, 11);
+      ctx.fillStyle = "#a0ef4a";
+      ctx.fillRect(x, platform.y - 7, width, 4);
+      for (let tuft = Math.ceil(platform.x / 36) * 36; tuft < platform.end; tuft += 36) {
+        const tx = tuft - cameraX;
+        ctx.fillStyle = tuft % 2 ? "#75df44" : "#b1f35a";
+        ctx.beginPath();
+        ctx.arc(tx + 9, platform.y - 5, 5, Math.PI, 0);
+        ctx.fill();
+      }
+    }
+
+    function drawCat(player, cameraX, elapsed) {
+      const x = player.x - cameraX;
+      const y = player.y + Math.sin(elapsed * 12) * (player.grounded && Math.abs(player.vx) > 10 ? 2 : 0);
+      if (player.invulnerable > 0 && Math.floor(elapsed * 14) % 2 === 0) return;
+      ctx.save();
+      ctx.translate(x + player.width / 2, y + player.height / 2);
+      ctx.scale(player.facing, 1);
+      if (player.dashTime > 0) {
+        ctx.globalAlpha = .5;
+        ctx.fillStyle = "#e7faff";
+        for (let i = 1; i <= 3; i++) {
+          ctx.beginPath();
+          ctx.ellipse(-player.width * i * .55, 5, 19, 7, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+      if (player.shieldTime > 0) {
+        ctx.beginPath();
+        ctx.arc(0, 0, 33, 0, Math.PI * 2);
+        ctx.fillStyle = "#69dff266";
+        ctx.fill();
+        ctx.strokeStyle = "#b8ffff";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.moveTo(-16, -10); ctx.lineTo(-14, -31); ctx.lineTo(0, -18); ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(5, -18); ctx.lineTo(17, -31); ctx.lineTo(17, -8); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#fb9dc5";
+      ctx.beginPath();
+      ctx.moveTo(-12, -16); ctx.lineTo(-12, -25); ctx.lineTo(-4, -18); ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(10, -18); ctx.lineTo(14, -25); ctx.lineTo(14, -14); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.beginPath(); ctx.ellipse(0, -4, 21, 21, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#f34fa5";
+      drawRoundedRect(-15, 11, 30, 20, 8); ctx.fill();
+      const stride = player.grounded ? Math.sin(elapsed * 16) * Math.min(5, Math.abs(player.vx) / 40) : 0;
+      ctx.strokeStyle = "#fff"; ctx.lineWidth = 7; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.moveTo(-9, 25); ctx.lineTo(-12 + stride, 31); ctx.moveTo(9, 25); ctx.lineTo(12 - stride, 31); ctx.stroke();
+      ctx.fillStyle = "#45c8ed";
+      ctx.beginPath(); ctx.ellipse(-8, -5, 5, 8, 0, 0, Math.PI * 2); ctx.ellipse(8, -5, 5, 8, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#172b55";
+      ctx.beginPath(); ctx.ellipse(-8, -4, 2, 5, 0, 0, Math.PI * 2); ctx.ellipse(8, -4, 2, 5, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.beginPath(); ctx.arc(-9, -8, 1.8, 0, Math.PI * 2); ctx.arc(7, -8, 1.8, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#ef8aae";
+      ctx.beginPath(); ctx.arc(0, 4, 2.5, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "#80556b"; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(-2, 6, 3, 0, Math.PI / 2); ctx.arc(2, 6, 3, Math.PI / 2, Math.PI); ctx.stroke();
+      if (player.attackTime > 0) {
+        ctx.strokeStyle = "#fff2a6"; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.arc(22, 3, 21, -.9, .8); ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function renderGame() {
+      const player = gameState.player;
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      if (!width || !height) return;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      const sky = ctx.createLinearGradient(0, 0, 0, 562);
+      sky.addColorStop(0, "#168ff0");
+      sky.addColorStop(.64, "#6bd5ff");
+      sky.addColorStop(1, "#d5faff");
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, 1000, 562);
+      ctx.fillStyle = "#fff6b0";
+      ctx.beginPath(); ctx.arc(830, 95, 34, 0, Math.PI * 2); ctx.fill();
+      for (let i = 0; i < 7; i++) {
+        const cloudX = ((i * 197 - gameState.cameraX * .16) % 1150 + 1150) % 1150 - 80;
+        const cloudY = 70 + (i % 3) * 58;
+        ctx.fillStyle = "#ffffffd9";
+        ctx.beginPath();
+        ctx.ellipse(cloudX, cloudY, 35, 15, 0, 0, Math.PI * 2);
+        ctx.ellipse(cloudX + 23, cloudY - 7, 24, 21, 0, 0, Math.PI * 2);
+        ctx.ellipse(cloudX + 47, cloudY, 31, 16, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      for (let i = 0; i < 9; i++) {
+        const hillX = i * 165 - (gameState.cameraX * .32 % 165) - 30;
+        ctx.fillStyle = i % 2 ? "#99e4eb" : "#78d4eb";
+        ctx.beginPath();
+        ctx.moveTo(hillX - 80, 442);
+        ctx.lineTo(hillX + 50, 245 + (i % 3) * 20);
+        ctx.lineTo(hillX + 177, 442);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.fillStyle = "#f9d1f1";
+      ctx.fillRect(levelWidth - gameState.cameraX - 105, 325, 12, 145);
+      ctx.fillStyle = "#f44e6d";
+      ctx.beginPath();
+      ctx.moveTo(levelWidth - gameState.cameraX - 98, 329);
+      ctx.lineTo(levelWidth - gameState.cameraX - 38, 349);
+      ctx.lineTo(levelWidth - gameState.cameraX - 98, 371);
+      ctx.closePath();
+      ctx.fill();
+      platforms.forEach((platform) => drawPlatform(platform, gameState.cameraX));
+      spikes.forEach((spike) => {
+        const x = spike.x - gameState.cameraX;
+        if (x < -30 || x > 1030) return;
+        ctx.fillStyle = "#e95d8b";
+        ctx.beginPath();
+        ctx.moveTo(x, spike.y);
+        ctx.lineTo(x + 10, spike.y - 19);
+        ctx.lineTo(x + 20, spike.y);
+        ctx.lineTo(x + 30, spike.y - 19);
+        ctx.lineTo(x + 40, spike.y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#fff0f5";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      });
+      gameState.coins.forEach((coin, index) => {
+        if (coin.collected) return;
+        const x = coin.x - gameState.cameraX;
+        if (x < -30 || x > 1030) return;
+        const wobble = Math.sin(gameState.elapsed * 5 + index) * 3;
+        ctx.fillStyle = "#ffb91e"; ctx.strokeStyle = "#f58b13"; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.ellipse(x, coin.y + wobble, 11, 15, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#fff0a0"; ctx.fillRect(x - 1, coin.y - 8 + wobble, 2, 16);
+      });
+      gameState.gems.forEach((gem) => {
+        if (gem.collected) return;
+        const x = gem.x - gameState.cameraX;
+        ctx.save(); ctx.translate(x, gem.y + Math.sin(gameState.elapsed * 3 + gem.x) * 5);
+        ctx.fillStyle = "#f34cff"; ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(0, -15); ctx.lineTo(13, -3); ctx.lineTo(8, 14); ctx.lineTo(-9, 14); ctx.lineTo(-14, -3); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.restore();
+      });
+      gameState.enemies.forEach((enemy) => {
+        if (!enemy.alive) return;
+        const x = enemy.x - gameState.cameraX;
+        if (x < -40 || x > 1040) return;
+        ctx.fillStyle = "#fff0cf";
+        drawRoundedRect(x - 14, enemy.y + 12, 28, 24, 9); ctx.fill();
+        ctx.fillStyle = "#a24a27";
+        ctx.beginPath(); ctx.ellipse(x, enemy.y + 13, 19, 12, 0, Math.PI, 0); ctx.fill();
+        ctx.fillStyle = "#fff";
+        ctx.beginPath(); ctx.arc(x - 6, enemy.y + 20, 3, 0, Math.PI * 2); ctx.arc(x + 6, enemy.y + 20, 3, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#29233b";
+        ctx.beginPath(); ctx.arc(x - 6, enemy.y + 20, 1.4, 0, Math.PI * 2); ctx.arc(x + 6, enemy.y + 20, 1.4, 0, Math.PI * 2); ctx.fill();
+      });
+      if (player.magnetTime > 0) {
+        ctx.strokeStyle = "#7dece2aa"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(player.x - gameState.cameraX + player.width / 2, player.y + player.height / 2, 115, 0, Math.PI * 2); ctx.stroke();
+      }
+      drawCat(player, gameState.cameraX, gameState.elapsed);
+      if (gameState.hitFlash > 0) {
+        ctx.fillStyle = `rgba(255,60,120,${gameState.hitFlash * .17})`;
+        ctx.fillRect(0, 0, 1000, 562);
+      }
+    }
+
+    function loseLife() {
+      const player = gameState.player;
+      if (player.invulnerable > 0 || player.shieldTime > 0 || gameState.ended) return;
+      gameState.lives -= 1;
+      gameState.combo = 0;
+      gameState.energy = Math.max(0, gameState.energy - 15);
+      gameState.hitFlash = 1;
+      player.invulnerable = 1.25;
+      input.left = false;
+      input.right = false;
+      restoreCheckpoint();
+      updateInterface();
+      if (gameState.lives <= 0) {
+        gameState.ended = true;
+        setOverlay("Hết lượt chơi!", `Bạn đạt ${gameState.score.toLocaleString("vi-VN")} điểm. Sẵn sàng thử lại?`, true);
+        ui.overlayTitle.firstChild.textContent = "Hết lượt chơi!";
+        interfaceStatus.textContent = "Game over. Nhấn Chơi lại để bắt đầu ván mới.";
+      } else {
+        interfaceStatus.textContent = `Mất một mạng! Hồi sinh tại điểm an toàn. Còn ${gameState.lives} mạng.`;
+      }
+    }
+
+    function defeatEnemy(enemy) {
+      if (!enemy.alive) return;
+      enemy.alive = false;
+      gameState.defeated += 1;
+      gameState.combo += 1;
+      gameState.comboTimer = 2.2;
+      gameState.score += 100 * Math.min(gameState.combo, 5);
+      gameState.player.vy = -390;
+      interfaceStatus.textContent = `Hạ quái nấm! Combo ${gameState.combo}.`;
+    }
+
+    function activateAttack() {
+      const player = gameState.player;
+      if (gameState.paused || gameState.ended) return;
+      if (player.attackCooldown > 0) {
+        interfaceStatus.textContent = `Cào móng hồi chiêu ${player.attackCooldown.toFixed(1)} giây.`;
+        return;
+      }
+      if (gameState.energy < 7) {
+        interfaceStatus.textContent = "Cần 7 năng lượng để cào móng.";
+        return;
+      }
+      player.attackTime = .22;
+      player.attackCooldown = .38;
+      gameState.energy = Math.max(0, gameState.energy - 7);
+      updateInterface();
+      for (const enemy of gameState.enemies) {
+        if (!enemy.alive) continue;
+        const distance = enemy.x - (player.x + player.width / 2);
+        if (Math.abs(distance) < 70 && Math.sign(distance || player.facing) === player.facing && Math.abs(enemy.y - player.y) < 65) {
+          defeatEnemy(enemy);
+        }
+      }
+    }
+
+    function jump() {
+      if (gameState.paused || gameState.ended) return;
+      const player = gameState.player;
+      if (player.jumps >= 2) return;
+      player.vy = player.jumps === 0 ? -650 : -570;
+      player.grounded = false;
+      player.jumps += 1;
+      gameState.energy = Math.min(100, gameState.energy + 2);
+    }
+
+    function activateDash() {
+      const player = gameState.player;
+      if (gameState.paused || gameState.ended) return;
+      if (player.dashCooldown > 0) {
+        interfaceStatus.textContent = `Lướt hồi chiêu ${player.dashCooldown.toFixed(1)} giây.`;
+        return;
+      }
+      if (gameState.energy < 25) {
+        interfaceStatus.textContent = "Cần 25 năng lượng để lướt.";
+        return;
+      }
+      player.dashTime = .2;
+      player.dashCooldown = .8;
+      player.invulnerable = Math.max(player.invulnerable, .28);
+      player.vx = player.facing * 720;
+      gameState.energy -= 25;
+      updateInterface();
+    }
+
+    function activateShield() {
+      const player = gameState.player;
+      if (gameState.paused || gameState.ended) return;
+      if (player.shieldTime <= 0 && gameState.energy < 20) {
+        interfaceStatus.textContent = "Cần 20 năng lượng để bật khiên.";
+        return;
+      }
+      player.shieldTime = player.shieldTime > 0 ? 0 : 5;
+      if (player.shieldTime > 0) gameState.energy -= 20;
+      interfaceStatus.textContent = player.shieldTime > 0 ? "Khiên bong bóng đã bật trong 5 giây." : "Đã tắt khiên bong bóng.";
+      updateInterface();
+    }
+
+    function activateMagnet() {
+      if (gameState.paused || gameState.ended) return;
+      if (gameState.player.magnetTime > 0) {
+        gameState.player.magnetTime = 0;
+        interfaceStatus.textContent = "Đã tắt nam châm hút xu.";
+      } else {
+        if (gameState.energy < 15) {
+          interfaceStatus.textContent = "Cần 15 năng lượng để bật nam châm.";
+          return;
+        }
+        gameState.player.magnetTime = 6;
+        gameState.energy -= 15;
+        interfaceStatus.textContent = "Nam châm hút xu đã bật trong 6 giây.";
+      }
+      updateInterface();
+    }
+
+    function collectItems() {
+      const player = gameState.player;
+      const centerX = player.x + player.width / 2;
+      const centerY = player.y + player.height / 2;
+      for (const coin of gameState.coins) {
+        if (coin.collected) continue;
+        if (player.magnetTime > 0 && Math.hypot(centerX - coin.x, centerY - coin.y) < 150) {
+          coin.x += Math.sign(centerX - coin.x) * Math.min(9, Math.abs(centerX - coin.x));
+          coin.y += Math.sign(centerY - coin.y) * Math.min(9, Math.abs(centerY - coin.y));
+        }
+        if (Math.abs(centerX - coin.x) < 24 && Math.abs(centerY - coin.y) < 28) {
+          coin.collected = true;
+          gameState.collectedCoins += 1;
+          gameState.score += 10;
+          gameState.energy = Math.min(100, gameState.energy + 1);
+        }
+      }
+      for (const gem of gameState.gems) {
+        if (gem.collected || Math.abs(centerX - gem.x) > 27 || Math.abs(centerY - gem.y) > 30) continue;
+        gem.collected = true;
+        gameState.collectedGems += 1;
+        gameState.score += 250;
+        interfaceStatus.textContent = `Đã thu thập ngọc quý ${gameState.collectedGems} trên 3!`;
+      }
+    }
+
+    function updateGame(delta) {
+      if (gameState.paused || gameState.ended) return;
+      const player = gameState.player;
+      gameState.elapsed += delta;
+      gameState.seconds = Math.max(0, gameState.seconds - delta);
+      gameState.energy = Math.min(100, gameState.energy + delta * 5);
+      gameState.hitFlash = Math.max(0, gameState.hitFlash - delta);
+      gameState.comboTimer -= delta;
+      if (gameState.comboTimer <= 0) gameState.combo = 0;
+      player.invulnerable = Math.max(0, player.invulnerable - delta);
+      player.dashTime = Math.max(0, player.dashTime - delta);
+      player.attackTime = Math.max(0, player.attackTime - delta);
+      player.shieldTime = Math.max(0, player.shieldTime - delta);
+      player.magnetTime = Math.max(0, player.magnetTime - delta);
+      player.dashCooldown = Math.max(0, player.dashCooldown - delta);
+      player.attackCooldown = Math.max(0, player.attackCooldown - delta);
+      if (gameState.seconds <= 0) {
+        gameState.ended = true;
+        setOverlay("Hết giờ!", `Bạn đạt ${gameState.score.toLocaleString("vi-VN")} điểm. Thử lại và chạy nhanh hơn nhé!`, true);
+        ui.overlayTitle.firstChild.textContent = "Hết giờ!";
+        return;
+      }
+
+      const movement = Number(input.right) - Number(input.left);
+      if (movement) player.facing = movement;
+      if (player.dashTime <= 0) {
+        const targetSpeed = movement * 270;
+        player.vx += (targetSpeed - player.vx) * Math.min(1, delta * (player.grounded ? 12 : 5));
+      }
+      const previousX = player.x;
+      const previousY = player.y;
+      const previousBottom = previousY + player.height;
+      player.x += player.vx * delta;
+      player.x = Math.max(0, Math.min(levelWidth - player.width, player.x));
+      for (const platform of platforms) {
+        const overlapsVertically = player.y < platform.y + 110 && player.y + player.height > platform.y + 1;
+        if (!overlapsVertically) continue;
+        if (player.vx > 0 && previousX + player.width <= platform.x && player.x + player.width > platform.x) {
+          player.x = platform.x - player.width;
+          player.vx = 0;
+        } else if (player.vx < 0 && previousX >= platform.end && player.x < platform.end) {
+          player.x = platform.end;
+          player.vx = 0;
+        }
+      }
+      player.vy = Math.min(900, player.vy + 1650 * delta);
+      player.y += player.vy * delta;
+      player.grounded = false;
+      let standingPlatform = null;
+      for (const platform of platforms) {
+        const overlaps = player.x + player.width > platform.x + 3 && player.x < platform.end - 3;
+        if (overlaps && player.vy >= 0 && previousBottom <= platform.y && player.y + player.height >= platform.y) {
+          player.y = platform.y - player.height;
+          player.vy = 0;
+          player.grounded = true;
+          player.jumps = 0;
+          standingPlatform = platform;
+        } else if (overlaps && player.vy < 0 && previousY >= platform.y + 110 && player.y < platform.y + 110) {
+          player.y = platform.y + 110;
+          player.vy = 0;
+        }
+      }
+      if (standingPlatform) {
+        saveCheckpoint(standingPlatform);
+      } else {
+        const platformAbove = platforms
+          .filter((platform) =>
+            player.x + player.width > platform.x + 8 && player.x < platform.end - 8 &&
+            player.y + player.height <= platform.y + 22
+          )
+          .sort((first, second) => first.y - second.y)[0];
+        if (platformAbove) saveCheckpoint(platformAbove);
+      }
+      if (player.y > 630) {
+        loseLife();
+        return;
+      }
+      if (player.grounded && gameState.comboTimer < 0 && gameState.combo > 0) gameState.combo = 0;
+
+      for (const enemy of gameState.enemies) {
+        if (!enemy.alive) continue;
+        enemy.x += enemy.direction * enemy.speed * delta;
+        if (Math.abs(enemy.x - enemy.homeX) > enemy.range) enemy.direction *= -1;
+        const overlap = player.x + player.width > enemy.x - 16 && player.x < enemy.x + 16 &&
+          player.y + player.height > enemy.y + 7 && player.y < enemy.y + 32;
+        if (!overlap) continue;
+        if (player.vy > 80 && previousBottom < enemy.y + 23) {
+          defeatEnemy(enemy);
+        } else if (player.attackTime > 0 && Math.sign(enemy.x - player.x || player.facing) === player.facing) {
+          defeatEnemy(enemy);
+        } else if (player.dashTime <= 0) {
+          loseLife();
+          if (gameState.ended) return;
+        }
+      }
+      for (const spike of spikes) {
+        const touchesSpike = player.x + player.width > spike.x && player.x < spike.x + 40 &&
+          player.y + player.height > spike.y - 18 && player.y + player.height <= spike.y + 8 &&
+          player.y < spike.y;
+        if (touchesSpike) {
+          loseLife();
+          if (gameState.ended) return;
+          break;
+        }
+      }
+      collectItems();
+      gameState.cameraX = Math.max(0, Math.min(levelWidth - 1000, player.x - 280));
+      if (player.x >= levelWidth - 100) {
+        gameState.won = true;
+        gameState.ended = true;
+        gameState.score += gameState.lives * 200 + gameState.collectedGems * 100;
+        setOverlay("Về đích rồi!", `Bạn đạt ${gameState.score.toLocaleString("vi-VN")} điểm và thu thập ${gameState.collectedGems}/3 viên ngọc.`, true);
+        ui.overlayTitle.firstChild.textContent = "Về đích rồi!";
+        interfaceStatus.textContent = "Chúc mừng! Bạn đã hoàn thành Whisker Meadows.";
+      }
+    }
+
+    function gameFrame(timestamp) {
+      const delta = Math.min(.035, lastFrame ? (timestamp - lastFrame) / 1000 : 0);
+      lastFrame = timestamp;
+      updateGame(delta);
+      renderGame();
+      const second = Math.ceil(gameState.seconds);
+      if (second !== displayedSecond || timestamp % 100 < 20) {
+        displayedSecond = second;
+        updateInterface();
+      }
+      requestAnimationFrame(gameFrame);
+    }
+
+    function restartGame() {
+      gameState = newGameState();
+      input.left = false;
+      input.right = false;
+      lastFrame = 0;
+      pauseOverlay.classList.remove("is-visible");
+      pauseOverlay.setAttribute("aria-hidden", "true");
+      pauseButton.setAttribute("aria-pressed", "false");
+      pauseButton.setAttribute("title", "Tạm dừng");
+      pauseButton.setAttribute("aria-label", "Tạm dừng");
+      pauseButton.innerHTML = '<i class="ph-bold ph-pause text-base"></i>';
+      interfaceStatus.textContent = "Bắt đầu màn Whisker Meadows. Chúc chơi vui!";
+      updateInterface();
+    }
+
+    const keyMap = {
+      ArrowLeft: "left", a: "left", A: "left",
+      ArrowRight: "right", d: "right", D: "right"
+    };
+    document.addEventListener("keydown", (event) => {
+      if (keyMap[event.key] && !gameState.paused && !gameState.ended) {
+        input[keyMap[event.key]] = true;
+        event.preventDefault();
+      }
+      if ([" ", "ArrowUp", "w", "W"].includes(event.key)) {
+        event.preventDefault();
+        if (!event.repeat) jump();
+      }
+      if (["Shift"].includes(event.key)) {
+        event.preventDefault();
+        if (!event.repeat) activateDash();
+      }
+      if (["j", "J", "z", "Z"].includes(event.key) && !event.repeat) activateAttack();
+      if (["k", "K"].includes(event.key) && !event.repeat) activateShield();
+      if (["x", "X"].includes(event.key) && !event.repeat) activateMagnet();
+    });
+    document.addEventListener("keyup", (event) => {
+      if (keyMap[event.key]) input[keyMap[event.key]] = false;
+    });
+    window.addEventListener("blur", () => {
+      input.left = false;
+      input.right = false;
+    });
+    document.querySelectorAll(".touch-controls button").forEach((button) => {
+      const action = button.dataset.gameAction;
+      button.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        button.setPointerCapture(event.pointerId);
+        if (action === "jump") jump();
+        else if (action === "attack") activateAttack();
+        else if (action === "dash") activateDash();
+        else if (action === "shield") activateShield();
+        else if (action === "magnet") activateMagnet();
+        else input[action] = true;
+      });
+      const release = () => {
+        if (action === "left" || action === "right") input[action] = false;
+      };
+      button.addEventListener("pointerup", release);
+      button.addEventListener("pointercancel", release);
+      button.addEventListener("lostpointercapture", release);
+    });
+    ui.restart.addEventListener("click", restartGame);
+    ui.shieldButton.addEventListener("click", activateShield);
+    ui.magnetButton.addEventListener("click", activateMagnet);
+    updateInterface();
+    requestAnimationFrame(gameFrame);
+  </script>
+</body>
+</html>
