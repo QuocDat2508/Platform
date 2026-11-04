@@ -254,6 +254,26 @@
       box-shadow: 0 2px 8px #16233435;
       pointer-events: auto;
     }
+    .touch-controls .skill-button {
+      position: relative;
+      overflow: hidden;
+    }
+    .touch-controls .skill-button:disabled { opacity: .8; }
+    .cooldown-overlay {
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      border-radius: inherit;
+      background: #172033c9;
+      color: #fff;
+      font: 700 10px Rubik, sans-serif;
+      text-shadow: none;
+      pointer-events: none;
+    }
+    .cooldown-overlay[hidden] { display: none; }
+    .powerup-icon { position: relative; overflow: hidden; }
     .touch-controls .jump-button { width: 66px; height: 66px; font-size: 27px; }
     .touch-controls .action-button { width: 44px; height: 44px; font-size: 17px; }
 
@@ -852,10 +872,10 @@
               <button type="button" data-game-action="right" aria-label="Đi sang phải">▶</button>
             </div>
             <div class="touch-action-controls">
-              <button type="button" class="action-button" data-game-action="attack" aria-label="Cào">✦</button>
-              <button type="button" class="action-button" data-game-action="dash" aria-label="Lướt" title="Lướt (Shift)">⚡</button>
-              <button type="button" class="action-button" data-game-action="shield" aria-label="Bật khiên">◉</button>
-              <button type="button" class="action-button" data-game-action="magnet" aria-label="Bật nam châm">🧲</button>
+              <button type="button" class="action-button skill-button" data-game-action="attack" aria-label="Cào">✦<span id="attack-cooldown-overlay" class="cooldown-overlay" aria-hidden="true" hidden></span></button>
+              <button type="button" class="action-button skill-button" data-game-action="dash" aria-label="Lướt" title="Lướt (Shift)">⚡<span id="dash-cooldown-overlay" class="cooldown-overlay" aria-hidden="true" hidden></span></button>
+              <button type="button" class="action-button skill-button" data-game-action="shield" aria-label="Bật khiên">◉<span id="shield-touch-cooldown-overlay" class="cooldown-overlay" aria-hidden="true" hidden></span></button>
+              <button type="button" class="action-button skill-button" data-game-action="magnet" aria-label="Bật nam châm">🧲<span id="magnet-touch-cooldown-overlay" class="cooldown-overlay" aria-hidden="true" hidden></span></button>
               <button type="button" class="jump-button" data-game-action="jump" aria-label="Nhảy">⬆</button>
             </div>
           </div>
@@ -1014,8 +1034,9 @@
           <div class="grid grid-cols-2 gap-3">
             <!-- Powerup 1 -->
             <button type="button" class="powerup-card bg-pink-50/60 border border-pink-200 rounded-2xl p-3 flex flex-col items-center text-center gap-1.5 hover:shadow-md transition" data-powerup="shield" aria-label="Bật khiên bong bóng, phím K" aria-pressed="false">
-              <div class="w-10 h-10 rounded-full bg-pink-500 text-white flex items-center justify-center shadow-md shadow-pink-200">
+              <div class="powerup-icon w-10 h-10 rounded-full bg-pink-500 text-white flex items-center justify-center shadow-md shadow-pink-200">
                 <i class="ph-fill ph-shield-check text-xl"></i>
+                <span id="shield-card-cooldown-overlay" class="cooldown-overlay" aria-hidden="true" hidden></span>
               </div>
               <span class="font-bold text-xs text-slate-800">Khiên Bong Bóng</span>
               <span class="text-[10px] text-slate-400">Bảo vệ 5 giây (Phím K)</span>
@@ -1024,8 +1045,9 @@
 
             <!-- Powerup 2 -->
             <button type="button" class="powerup-card bg-cyan-50/60 border border-cyan-200 rounded-2xl p-3 flex flex-col items-center text-center gap-1.5 hover:shadow-md transition" data-powerup="magnet" aria-label="Bật nam châm hút xu, phím X" aria-pressed="false">
-              <div class="w-10 h-10 rounded-full bg-cyan-500 text-white flex items-center justify-center shadow-md shadow-cyan-200">
+              <div class="powerup-icon w-10 h-10 rounded-full bg-cyan-500 text-white flex items-center justify-center shadow-md shadow-cyan-200">
                 <i class="ph-fill ph-magnet text-xl"></i>
+                <span id="magnet-card-cooldown-overlay" class="cooldown-overlay" aria-hidden="true" hidden></span>
               </div>
               <span class="font-bold text-xs text-slate-800">Nam Châm Hút Xu</span>
               <span class="text-[10px] text-slate-400">Hút xu 6 giây (Phím X)</span>
@@ -1109,8 +1131,16 @@
       magnetStatus: document.querySelector('[data-powerup="magnet"] [data-powerup-status]'),
       shieldButton: document.querySelector('[data-powerup="shield"]'),
       magnetButton: document.querySelector('[data-powerup="magnet"]'),
+      shieldTouchButton: document.querySelector('[data-game-action="shield"]'),
+      magnetTouchButton: document.querySelector('[data-game-action="magnet"]'),
       dashButton: document.querySelector('[data-game-action="dash"]'),
-      attackButton: document.querySelector('[data-game-action="attack"]')
+      attackButton: document.querySelector('[data-game-action="attack"]'),
+      attackCooldownOverlay: document.querySelector("#attack-cooldown-overlay"),
+      dashCooldownOverlay: document.querySelector("#dash-cooldown-overlay"),
+      shieldTouchCooldownOverlay: document.querySelector("#shield-touch-cooldown-overlay"),
+      magnetTouchCooldownOverlay: document.querySelector("#magnet-touch-cooldown-overlay"),
+      shieldCardCooldownOverlay: document.querySelector("#shield-card-cooldown-overlay"),
+      magnetCardCooldownOverlay: document.querySelector("#magnet-card-cooldown-overlay")
     };
     const levelWidth = 6400;
     const groundY = 470;
@@ -1174,7 +1204,8 @@
           x: 200, y: 380 - 60, width: 46, height: 60, vx: 0, vy: 0,
           facing: 1, grounded: false, jumps: 0, invulnerable: 0,
           dashTime: 0, attackTime: 0, shieldTime: 0, magnetTime: 0,
-          dashCooldown: 0, attackCooldown: 0
+          dashCooldown: 0, attackCooldown: 0,
+          shieldCooldown: 0, magnetCooldown: 0
         },
         coins: coinPositions.map((coin) => ({ ...coin })),
         gems: gemPositions.map((gem) => ({ ...gem })),
@@ -1359,9 +1390,20 @@
       gameState.cameraX = Math.max(0, Math.min(levelWidth - 1000, player.x - 280));
     }
 
+    function updateCooldownOverlay(overlay, cooldown) {
+      overlay.hidden = cooldown <= 0;
+      if (cooldown > 0) overlay.textContent = `${cooldown.toFixed(1)}s`;
+    }
+
     function updateInterface() {
       const player = gameState.player;
       const progress = Math.min(100, Math.floor(player.x / levelWidth * 100));
+      updateCooldownOverlay(ui.attackCooldownOverlay, player.attackCooldown);
+      updateCooldownOverlay(ui.dashCooldownOverlay, player.dashCooldown);
+      updateCooldownOverlay(ui.shieldTouchCooldownOverlay, player.shieldCooldown);
+      updateCooldownOverlay(ui.magnetTouchCooldownOverlay, player.magnetCooldown);
+      updateCooldownOverlay(ui.shieldCardCooldownOverlay, player.shieldCooldown);
+      updateCooldownOverlay(ui.magnetCardCooldownOverlay, player.magnetCooldown);
       ui.score.textContent = gameState.score.toLocaleString("vi-VN");
       ui.lives.innerHTML = Array.from({ length: gameState.lives }, () =>
         '<i class="ph-fill ph-heart text-pink-500 text-sm"></i>'
@@ -1381,19 +1423,28 @@
       ui.timer.textContent = `${Math.max(0, Math.ceil(gameState.seconds))}s`;
       ui.shieldStatus.textContent = gameState.player.shieldTime > 0
         ? `ĐANG BẬT ${gameState.player.shieldTime.toFixed(1)}s`
-        : gameState.energy >= 20 ? "SẴN SÀNG • 20⚡" : "CẦN 20⚡";
+        : gameState.player.shieldCooldown > 0
+          ? `HỒI CHIÊU ${gameState.player.shieldCooldown.toFixed(1)}s`
+          : gameState.energy >= 20 ? "SẴN SÀNG • 20⚡" : "CẦN 20⚡";
       ui.magnetStatus.textContent = gameState.player.magnetTime > 0
         ? `ĐANG BẬT ${gameState.player.magnetTime.toFixed(1)}s`
-        : gameState.energy >= 15 ? "SẴN SÀNG • 15⚡" : "CẦN 15⚡";
+        : gameState.player.magnetCooldown > 0
+          ? `HỒI CHIÊU ${gameState.player.magnetCooldown.toFixed(1)}s`
+          : gameState.energy >= 15 ? "SẴN SÀNG • 15⚡" : "CẦN 15⚡";
       ui.shieldButton.setAttribute("aria-pressed", String(gameState.player.shieldTime > 0));
       ui.magnetButton.setAttribute("aria-pressed", String(gameState.player.magnetTime > 0));
       ui.shieldButton.setAttribute("aria-label", gameState.player.shieldTime > 0
         ? "Tắt khiên bong bóng" : "Bật khiên bong bóng, phím K");
       ui.magnetButton.setAttribute("aria-label", gameState.player.magnetTime > 0
         ? "Tắt nam châm hút xu" : "Bật nam châm hút xu, phím X");
-      ui.shieldButton.disabled = gameState.paused || gameState.ended || (gameState.player.shieldTime <= 0 && gameState.energy < 20);
+      ui.shieldButton.disabled = gameState.paused || gameState.ended ||
+        (gameState.player.shieldTime <= 0 &&
+          (gameState.player.shieldCooldown > 0 || gameState.energy < 20));
+      ui.shieldTouchButton.disabled = ui.shieldButton.disabled;
       ui.magnetButton.disabled = gameState.paused || gameState.ended ||
-        (gameState.player.magnetTime <= 0 && gameState.energy < 15);
+        (gameState.player.magnetTime <= 0 &&
+          (gameState.player.magnetCooldown > 0 || gameState.energy < 15));
+      ui.magnetTouchButton.disabled = ui.magnetButton.disabled;
       ui.dashButton.disabled = gameState.paused || gameState.ended ||
         gameState.player.dashCooldown > 0 || gameState.energy < 25;
       ui.dashButton.title = gameState.player.dashCooldown > 0
@@ -1780,7 +1831,7 @@
         return;
       }
       player.attackTime = .22;
-      player.attackCooldown = .38;
+      player.attackCooldown = 2;
       gameState.energy = Math.max(0, gameState.energy - 7);
       updateInterface();
     }
@@ -1807,7 +1858,7 @@
         return;
       }
       player.dashTime = .2;
-      player.dashCooldown = .8;
+      player.dashCooldown = 2;
       player.invulnerable = Math.max(player.invulnerable, .28);
       player.vx = player.facing * 720;
       gameState.energy -= 25;
@@ -1817,13 +1868,21 @@
     function activateShield() {
       const player = gameState.player;
       if (gameState.paused || gameState.ended) return;
-      if (player.shieldTime <= 0 && gameState.energy < 20) {
+      if (player.shieldTime > 0) {
+        player.shieldTime = 0;
+        player.shieldCooldown = 2;
+        interfaceStatus.textContent = "Đã tắt khiên bong bóng.";
+      } else if (player.shieldCooldown > 0) {
+        interfaceStatus.textContent = `Khiên bong bóng hồi chiêu ${player.shieldCooldown.toFixed(1)} giây.`;
+        return;
+      } else if (gameState.energy < 20) {
         interfaceStatus.textContent = "Cần 20 năng lượng để bật khiên.";
         return;
+      } else {
+        player.shieldTime = 5;
+        gameState.energy -= 20;
+        interfaceStatus.textContent = "Khiên bong bóng đã bật trong 5 giây.";
       }
-      player.shieldTime = player.shieldTime > 0 ? 0 : 5;
-      if (player.shieldTime > 0) gameState.energy -= 20;
-      interfaceStatus.textContent = player.shieldTime > 0 ? "Khiên bong bóng đã bật trong 5 giây." : "Đã tắt khiên bong bóng.";
       updateInterface();
     }
 
@@ -1831,8 +1890,13 @@
       if (gameState.paused || gameState.ended) return;
       if (gameState.player.magnetTime > 0) {
         gameState.player.magnetTime = 0;
+        gameState.player.magnetCooldown = 2;
         interfaceStatus.textContent = "Đã tắt nam châm hút xu.";
       } else {
+        if (gameState.player.magnetCooldown > 0) {
+          interfaceStatus.textContent = `Nam châm hút xu hồi chiêu ${gameState.player.magnetCooldown.toFixed(1)} giây.`;
+          return;
+        }
         if (gameState.energy < 15) {
           interfaceStatus.textContent = "Cần 15 năng lượng để bật nam châm.";
           return;
@@ -1881,10 +1945,16 @@
       player.invulnerable = Math.max(0, player.invulnerable - delta);
       player.dashTime = Math.max(0, player.dashTime - delta);
       player.attackTime = Math.max(0, player.attackTime - delta);
-      player.shieldTime = Math.max(0, player.shieldTime - delta);
-      player.magnetTime = Math.max(0, player.magnetTime - delta);
       player.dashCooldown = Math.max(0, player.dashCooldown - delta);
       player.attackCooldown = Math.max(0, player.attackCooldown - delta);
+      player.shieldCooldown = Math.max(0, player.shieldCooldown - delta);
+      player.magnetCooldown = Math.max(0, player.magnetCooldown - delta);
+      const shieldWasActive = player.shieldTime > 0;
+      const magnetWasActive = player.magnetTime > 0;
+      player.shieldTime = Math.max(0, player.shieldTime - delta);
+      player.magnetTime = Math.max(0, player.magnetTime - delta);
+      if (shieldWasActive && player.shieldTime === 0) player.shieldCooldown = 2;
+      if (magnetWasActive && player.magnetTime === 0) player.magnetCooldown = 2;
       if (gameState.seconds <= 0) {
         gameState.ended = true;
         setOverlay("Hết giờ!", `Bạn đạt ${gameState.score.toLocaleString("vi-VN")} điểm. Thử lại và chạy nhanh hơn nhé!`, true);
