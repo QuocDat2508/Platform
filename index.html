@@ -293,6 +293,14 @@
       backdrop-filter: blur(3px);
     }
     .paused-overlay.is-visible { display: flex; }
+    .confetti-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .paused-overlay > div { position: relative; z-index: 1; }
     .paused-overlay strong {
       display: block;
       padding: 14px 22px;
@@ -853,6 +861,7 @@
           </div>
 
           <div class="paused-overlay" aria-live="polite" aria-hidden="true">
+            <canvas class="confetti-canvas" width="1000" height="562" aria-hidden="true"></canvas>
             <div>
               <strong id="overlay-title">Đã tạm dừng<br><span id="overlay-message" class="text-sm font-sans font-medium">Nhấn Esc hoặc nút tiếp tục</span></strong>
               <button id="restart-game" type="button" hidden>Chơi lại</button>
@@ -1077,6 +1086,8 @@
     const interfaceStatus = document.querySelector("#interface-status");
     const canvas = document.querySelector(".game-canvas");
     const ctx = canvas.getContext("2d");
+    const confettiCanvas = document.querySelector(".confetti-canvas");
+    const confettiCtx = confettiCanvas.getContext("2d");
     const ui = {
       score: document.querySelector("#score-value"),
       lives: document.querySelector("#lives-value"),
@@ -1140,10 +1151,21 @@
       { x: 3190, y: 335, collected: false },
       { x: 5230, y: 285, collected: false }
     ];
+    const mushroomPositions = [
+      { x: 330, minX: 280, maxX: 440, platform: platforms[1] },
+      { x: 940, minX: 910, maxX: 1040, platform: platforms[10] },
+      { x: 1740, minX: 1715, maxX: 1825, platform: platforms[12] },
+      { x: 2560, minX: 2520, maxX: 2685, platform: platforms[14] },
+      { x: 3420, minX: 3370, maxX: 3540, platform: platforms[16] },
+      { x: 4270, minX: 4210, maxX: 4360, platform: platforms[18] },
+      { x: 5100, minX: 5020, maxX: 5190, platform: platforms[20] }
+    ];
     const input = { left: false, right: false };
     let gameState;
     let lastFrame = 0;
     let displayedSecond = -1;
+    let confettiParticles = [];
+    let confettiElapsed = 0;
 
     function newGameState() {
       return {
@@ -1155,6 +1177,12 @@
         },
         coins: coinPositions.map((coin) => ({ ...coin })),
         gems: gemPositions.map((gem) => ({ ...gem })),
+        mushrooms: mushroomPositions.map((mushroom) => ({
+          ...mushroom,
+          y: mushroom.platform.y,
+          direction: 1,
+          defeated: false
+        })),
         cameraX: 0, score: 0, lives: 3, collectedCoins: 0, collectedGems: 0,
         energy: 100, seconds: 300, elapsed: 0,
         checkpoint: { x: 200, platform: platforms[0] },
@@ -1226,6 +1254,55 @@
       ui.restart.hidden = !showRestart;
       pauseOverlay.classList.add("is-visible");
       pauseOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function startConfetti() {
+      const colors = ["#ff4f91", "#ffd84d", "#55d9f5", "#9d75ff", "#72e58a", "#ff914d"];
+      confettiElapsed = 0;
+      confettiParticles = Array.from({ length: 140 }, () => ({
+        x: Math.random() * confettiCanvas.width,
+        y: -Math.random() * 420,
+        width: 5 + Math.random() * 8,
+        height: 7 + Math.random() * 9,
+        vx: (Math.random() - .5) * 150,
+        vy: 90 + Math.random() * 210,
+        rotation: Math.random() * Math.PI * 2,
+        spin: (Math.random() - .5) * 8,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      }));
+    }
+
+    function updateConfetti(delta) {
+      if (!gameState.won || confettiElapsed >= 6) {
+        confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        return;
+      }
+      confettiElapsed += delta;
+      confettiParticles.forEach((particle) => {
+        particle.x += particle.vx * delta;
+        particle.y += particle.vy * delta;
+        particle.vy += 90 * delta;
+        particle.rotation += particle.spin * delta;
+      });
+      confettiParticles = confettiParticles.filter((particle) =>
+        particle.y < confettiCanvas.height + 20
+      );
+    }
+
+    function drawConfetti() {
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      if (!gameState.won || confettiElapsed >= 6) return;
+      confettiCtx.save();
+      confettiCtx.globalAlpha = Math.min(1, (6 - confettiElapsed) / 1.5);
+      confettiParticles.forEach((particle) => {
+        confettiCtx.save();
+        confettiCtx.translate(particle.x, particle.y);
+        confettiCtx.rotate(particle.rotation);
+        confettiCtx.fillStyle = particle.color;
+        confettiCtx.fillRect(-particle.width / 2, -particle.height / 2, particle.width, particle.height);
+        confettiCtx.restore();
+      });
+      confettiCtx.restore();
     }
 
     function checkpointIsSafe(x, platform) {
@@ -1325,6 +1402,8 @@
         ui.mission.textContent = "Mèo con cần nghỉ một chút — hãy thử lại nhé!";
       } else if (gameState.seconds <= 30) {
         ui.mission.textContent = `Nhanh lên! Còn ${Math.ceil(gameState.seconds)} giây để tới cờ đích!`;
+      } else {
+        ui.mission.textContent = "Di chuyển sang phải, vượt chướng ngại vật và chạm cờ đích!";
       }
     }
 
@@ -1418,6 +1497,90 @@
         ctx.beginPath(); ctx.arc(22, 3, 21, -.9, .8); ctx.stroke();
       }
       ctx.restore();
+    }
+
+    function drawMushroom(mushroom, cameraX, elapsed) {
+      const x = mushroom.x - cameraX;
+      if (x < -30 || x > 1030) return;
+      const y = mushroom.y + Math.abs(Math.sin(elapsed * 8 + mushroom.x)) * 2;
+      ctx.save();
+      ctx.translate(x + 17, y);
+      ctx.fillStyle = "#fff1d2";
+      ctx.strokeStyle = "#a85d32";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-10, -5);
+      ctx.quadraticCurveTo(-10, -16, -7, -17);
+      ctx.lineTo(7, -17);
+      ctx.quadraticCurveTo(10, -15, 10, -5);
+      ctx.quadraticCurveTo(0, -1, -10, -5);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#ee4c61";
+      ctx.beginPath();
+      ctx.ellipse(0, -15, 17, 12, 0, Math.PI, Math.PI * 2);
+      ctx.lineTo(17, -13);
+      ctx.quadraticCurveTo(0, -7, -17, -13);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.arc(-8, -20, 3.5, 0, Math.PI * 2);
+      ctx.arc(3, -23, 3.5, 0, Math.PI * 2);
+      ctx.arc(10, -15, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#33223c";
+      ctx.beginPath();
+      ctx.arc(-4, -8, 1.5, 0, Math.PI * 2);
+      ctx.arc(4, -8, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function updateMushrooms(delta) {
+      gameState.mushrooms.forEach((mushroom) => {
+        if (mushroom.defeated) return;
+        const width = 34;
+        const minX = Math.max(mushroom.minX, mushroom.platform.x);
+        const maxX = Math.min(mushroom.maxX, mushroom.platform.end - width);
+        const nextX = mushroom.x + mushroom.direction * 72 * delta;
+        let wall = null;
+        if (mushroom.direction > 0) {
+          wall = platforms.find((platform) =>
+            platform !== mushroom.platform &&
+            mushroom.y - 28 < platform.y + 110 && mushroom.y > platform.y &&
+            mushroom.x + width <= platform.x && nextX + width > platform.x
+          );
+          if (wall) mushroom.x = wall.x - width;
+        } else {
+          wall = platforms.find((platform) =>
+            platform !== mushroom.platform &&
+            mushroom.y - 28 < platform.y + 110 && mushroom.y > platform.y &&
+            mushroom.x >= platform.end && nextX < platform.end
+          );
+          if (wall) mushroom.x = wall.end;
+        }
+        const spike = spikes.find((item) =>
+          item.y === mushroom.y &&
+          (mushroom.direction > 0
+            ? mushroom.x + width <= item.x && nextX + width > item.x
+            : mushroom.x >= item.x + 40 && nextX < item.x + 40)
+        );
+        if (spike) {
+          mushroom.x = mushroom.direction > 0 ? spike.x - width : spike.x + 40;
+          mushroom.direction *= -1;
+          return;
+        }
+        if (wall) {
+          mushroom.direction *= -1;
+          return;
+        }
+        mushroom.x = Math.max(minX, Math.min(nextX, maxX));
+        if (nextX <= minX || nextX >= maxX) {
+          mushroom.direction *= -1;
+        }
+      });
     }
 
     function drawCastle(cameraX) {
@@ -1547,6 +1710,9 @@
         ctx.strokeStyle = "#fff0f5";
         ctx.lineWidth = 2;
         ctx.stroke();
+      });
+      gameState.mushrooms.forEach((mushroom) => {
+        if (!mushroom.defeated) drawMushroom(mushroom, gameState.cameraX, gameState.elapsed);
       });
       gameState.coins.forEach((coin, index) => {
         if (coin.collected) return;
@@ -1703,6 +1869,7 @@
       if (gameState.paused || gameState.ended) return;
       const player = gameState.player;
       gameState.elapsed += delta;
+      updateMushrooms(delta);
       gameState.seconds = Math.max(0, gameState.seconds - delta);
       gameState.energy = Math.min(100, gameState.energy + delta * 5);
       gameState.hitFlash = Math.max(0, gameState.hitFlash - delta);
@@ -1729,6 +1896,7 @@
       const previousX = player.x;
       const previousY = player.y;
       const previousBottom = previousY + player.height;
+      const wasFalling = player.vy > 0;
       player.x += player.vx * delta;
       player.x = Math.max(0, Math.min(levelWidth - player.width, player.x));
       for (const platform of platforms) {
@@ -1784,12 +1952,33 @@
           break;
         }
       }
+      for (const mushroom of gameState.mushrooms) {
+        if (mushroom.defeated) continue;
+        const mushroomTop = mushroom.y - 28;
+        const overlapsMushroom = player.x + player.width > mushroom.x + 3 &&
+          player.x < mushroom.x + 31 && player.y + player.height > mushroomTop &&
+          player.y < mushroom.y;
+        if (!overlapsMushroom) continue;
+        if (wasFalling && previousBottom <= mushroomTop + 8) {
+          mushroom.defeated = true;
+          player.y = mushroomTop - player.height;
+          player.vy = -360;
+          player.grounded = false;
+          gameState.score += 50;
+          interfaceStatus.textContent = "Đạp trúng nấm! Nhận thêm 50 điểm.";
+        } else {
+          loseLife();
+          if (gameState.ended) return;
+        }
+        break;
+      }
       collectItems();
       gameState.cameraX = Math.max(0, Math.min(levelWidth - 1000, player.x - 280));
       if (player.x >= levelWidth - 100) {
         gameState.won = true;
         gameState.ended = true;
         gameState.score += gameState.lives * 200 + gameState.collectedGems * 100;
+        startConfetti();
         setOverlay("Chúc mừng!", `Bạn đã về đích! Đạt ${gameState.score.toLocaleString("vi-VN")} điểm và thu thập ${gameState.collectedGems}/3 viên ngọc.`, true);
         interfaceStatus.textContent = "Chúc mừng! Bạn đã hoàn thành Whisker Meadows.";
       }
@@ -1800,6 +1989,8 @@
       lastFrame = timestamp;
       updateGame(delta);
       renderGame();
+      updateConfetti(delta);
+      drawConfetti();
       const second = Math.ceil(gameState.seconds);
       if (second !== displayedSecond || timestamp % 100 < 20) {
         displayedSecond = second;
@@ -1810,6 +2001,8 @@
 
     function restartGame() {
       gameState = newGameState();
+      confettiParticles = [];
+      confettiElapsed = 0;
       input.left = false;
       input.right = false;
       lastFrame = 0;
