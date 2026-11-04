@@ -272,9 +272,9 @@
       backdrop-filter: none;
       font-size: 9px;
     }
-    .game-stage .stage-bottom > div:first-child { width: 225px; }
+    .game-stage .stage-bottom > div:first-child { width: 190px; }
     .game-stage .stage-bottom .h-2\.5 {
-      height: 7px;
+      height: 5px;
       background: #f5dce9;
     }
     .game-stage .stage-bottom .h-2\.5 > div { background: linear-gradient(90deg, #ed4e92, #fc7cad); }
@@ -832,7 +832,7 @@
           </div>
 
           <div class="game-center-hud" aria-label="Mạng và màn chơi">
-            <span class="hearts" aria-label="3 mạng">♥ ♥ ♥</span>
+            <span id="top-lives" class="hearts" aria-label="3 mạng">♥ ♥ ♥</span>
             <span>🚩 1-1</span>
           </div>
 
@@ -871,12 +871,12 @@
           <!-- BOTTOM HUD (ENERGY & SECRETS) -->
           <div class="absolute bottom-4 left-4 right-4 flex items-end justify-between z-10 pointer-events-none stage-bottom">
             <!-- Energy Bar -->
-            <div class="backdrop-blur-md bg-black/50 border border-white/20 rounded-2xl p-2.5 flex flex-col gap-1 w-64 pointer-events-auto shadow-lg">
-              <div class="flex justify-between text-[11px] font-bold text-white tracking-wide">
+            <div class="backdrop-blur-md bg-black/50 border border-white/20 rounded-2xl p-2.5 flex flex-col gap-1 w-48 pointer-events-auto shadow-lg">
+              <div class="flex justify-between text-[10px] font-bold text-white tracking-wide">
                 <span class="flex items-center gap-1 text-pink-300"><i class="ph-fill ph-lightning"></i> THANH NĂNG LƯỢNG MÓNG VUỐT</span>
                 <span id="energy-value">100%</span>
               </div>
-              <div class="h-2.5 w-full bg-white/20 rounded-full overflow-hidden p-0.5">
+              <div class="h-1.5 w-full bg-white/20 rounded-full overflow-hidden p-0.5">
                 <div id="energy-bar" class="h-full bg-gradient-to-r from-pink-500 via-purple-400 to-cyan-400 rounded-full w-full transition-all"></div>
               </div>
             </div>
@@ -1091,6 +1091,7 @@
     const ui = {
       score: document.querySelector("#score-value"),
       lives: document.querySelector("#lives-value"),
+      topLives: document.querySelector("#top-lives"),
       livesCount: document.querySelector("#lives-count"),
       coins: document.querySelector("#coins-value"),
       gems: document.querySelector("#gems-value"),
@@ -1365,6 +1366,10 @@
       ui.lives.innerHTML = Array.from({ length: gameState.lives }, () =>
         '<i class="ph-fill ph-heart text-pink-500 text-sm"></i>'
       ).join("");
+      ui.topLives.textContent = Array.from({ length: 3 }, (_, index) =>
+        index < gameState.lives ? "♥" : "♡"
+      ).join(" ");
+      ui.topLives.setAttribute("aria-label", `${gameState.lives} mạng`);
       ui.livesCount.textContent = `x${gameState.lives}`;
       ui.coins.textContent = gameState.collectedCoins;
       ui.gems.textContent = gameState.collectedGems;
