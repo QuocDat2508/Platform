@@ -1420,6 +1420,73 @@
       ctx.restore();
     }
 
+    function drawCastle(cameraX) {
+      const x = levelWidth - 400 - cameraX;
+      if (x < -300 || x > 1000) return;
+      ctx.save();
+      ctx.translate(x, 0);
+      ctx.fillStyle = "#486da855";
+      ctx.beginPath();
+      ctx.ellipse(160, 466, 175, 16, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(20, 470);
+      ctx.lineTo(20, 352); ctx.lineTo(42, 352); ctx.lineTo(42, 327);
+      ctx.lineTo(72, 327); ctx.lineTo(72, 352); ctx.lineTo(94, 352);
+      ctx.lineTo(94, 306); ctx.lineTo(119, 306); ctx.lineTo(119, 273);
+      ctx.lineTo(174, 273); ctx.lineTo(174, 306); ctx.lineTo(201, 306);
+      ctx.lineTo(201, 352); ctx.lineTo(225, 352); ctx.lineTo(225, 327);
+      ctx.lineTo(255, 327); ctx.lineTo(255, 352); ctx.lineTo(280, 352);
+      ctx.lineTo(280, 470); ctx.closePath();
+      ctx.fillStyle = "#ffd7f1";
+      ctx.strokeStyle = "#bb8bdc";
+      ctx.lineWidth = 5;
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#ff91c4";
+      ctx.fillRect(22, 378, 256, 18);
+      ctx.fillRect(97, 318, 105, 13);
+      ctx.fillStyle = "#ed6da9";
+      ctx.beginPath();
+      ctx.moveTo(108, 274); ctx.lineTo(146, 239); ctx.lineTo(184, 274); ctx.closePath();
+      ctx.moveTo(35, 328); ctx.lineTo(57, 300); ctx.lineTo(79, 328); ctx.closePath();
+      ctx.moveTo(218, 328); ctx.lineTo(240, 300); ctx.lineTo(262, 328); ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = "#8a67cd";
+      ctx.beginPath();
+      ctx.moveTo(123, 470); ctx.lineTo(123, 408);
+      ctx.arc(150, 408, 27, Math.PI, 0);
+      ctx.lineTo(177, 470); ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "#b9edff";
+      ctx.fillRect(56, 355, 14, 30);
+      ctx.fillRect(234, 355, 14, 30);
+      ctx.fillRect(139, 344, 20, 33);
+      ctx.fillStyle = "#fff2a1";
+      ctx.fillRect(60, 359, 6, 22);
+      ctx.fillRect(238, 359, 6, 22);
+      ctx.fillRect(146, 348, 6, 25);
+
+      ctx.strokeStyle = "#bb8bdc";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(146, 239); ctx.lineTo(146, 218);
+      ctx.moveTo(57, 300); ctx.lineTo(57, 283);
+      ctx.moveTo(240, 300); ctx.lineTo(240, 283);
+      ctx.stroke();
+      ctx.fillStyle = "#f44e6d";
+      ctx.beginPath();
+      ctx.moveTo(146, 218); ctx.lineTo(166, 225); ctx.lineTo(146, 232);
+      ctx.moveTo(57, 283); ctx.lineTo(73, 289); ctx.lineTo(57, 295);
+      ctx.moveTo(240, 283); ctx.lineTo(256, 289); ctx.lineTo(240, 295);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
     function renderGame() {
       const player = gameState.player;
       const width = canvas.clientWidth;
@@ -1454,6 +1521,7 @@
         ctx.closePath();
         ctx.fill();
       }
+      drawCastle(gameState.cameraX);
       ctx.fillStyle = "#f9d1f1";
       ctx.fillRect(levelWidth - gameState.cameraX - 105, 325, 12, 145);
       ctx.fillStyle = "#f44e6d";
@@ -1666,10 +1734,10 @@
       for (const platform of platforms) {
         const overlapsVertically = player.y < platform.y + 110 && player.y + player.height > platform.y + 1;
         if (!overlapsVertically) continue;
-        if (player.vx > 0 && previousX + player.width <= platform.x && player.x + player.width > platform.x) {
+        if (player.vx > 0 && previousX < platform.x && player.x + player.width > platform.x) {
           player.x = platform.x - player.width;
           player.vx = 0;
-        } else if (player.vx < 0 && previousX >= platform.end && player.x < platform.end) {
+        } else if (player.vx < 0 && previousX + player.width > platform.end && player.x < platform.end) {
           player.x = platform.end;
           player.vx = 0;
         }
@@ -1722,8 +1790,7 @@
         gameState.won = true;
         gameState.ended = true;
         gameState.score += gameState.lives * 200 + gameState.collectedGems * 100;
-        setOverlay("Về đích rồi!", `Bạn đạt ${gameState.score.toLocaleString("vi-VN")} điểm và thu thập ${gameState.collectedGems}/3 viên ngọc.`, true);
-        ui.overlayTitle.firstChild.textContent = "Về đích rồi!";
+        setOverlay("Chúc mừng!", `Bạn đã về đích! Đạt ${gameState.score.toLocaleString("vi-VN")} điểm và thu thập ${gameState.collectedGems}/3 viên ngọc.`, true);
         interfaceStatus.textContent = "Chúc mừng! Bạn đã hoàn thành Whisker Meadows.";
       }
     }
